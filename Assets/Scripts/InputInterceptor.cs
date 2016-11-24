@@ -2,37 +2,41 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Scripts
+public static class InputInterceptor
 {
-    public static class InputInterceptor
+    static InputInterceptor()
     {
-        static InputInterceptor()
+        TryAddControls("MouseControls");
+        TryAddControls("GamepadControls");
+    }
+
+    private static List<MonoBehaviour> _ktaneControlsManaged = new List<MonoBehaviour>();
+    private static List<MonoBehaviour> _ktaneControlsDisabled = new List<MonoBehaviour>();
+
+    private static int _disableCount = 0;
+
+    private static void TryAddControls(string typeName)
+    {
+        Type typeToFind = ReflectionHelper.FindType(typeName);
+        if (typeToFind == null)
         {
-            TryAddControls("MouseControls");
-            TryAddControls("GamepadControls");
+            return;
         }
 
-        private static List<MonoBehaviour> _ktaneControlsManaged = new List<MonoBehaviour>();
-        private static List<MonoBehaviour> _ktaneControlsDisabled = new List<MonoBehaviour>();
-
-        private static void TryAddControls(string typeName)
+        UnityEngine.Object objectToFind = UnityEngine.Object.FindObjectOfType(typeToFind);
+        if (objectToFind == null)
         {
-            Type typeToFind = ReflectionHelper.FindType(typeName);
-            if (typeToFind == null)
-            {
-                return;
-            }
-
-            UnityEngine.Object objectToFind = UnityEngine.Object.FindObjectOfType(typeToFind);
-            if (objectToFind == null)
-            {
-                return;
-            }
-
-            _ktaneControlsManaged.Add((MonoBehaviour)objectToFind);
+            return;
         }
 
-        private static void EnableControls()
+        _ktaneControlsManaged.Add((MonoBehaviour)objectToFind);
+    }
+
+    public static void EnableControls()
+    {
+        _disableCount--;
+
+        if (_disableCount == 0)
         {
             foreach (MonoBehaviour controls in _ktaneControlsDisabled)
             {
@@ -41,8 +45,11 @@ namespace Assets.Scripts
 
             _ktaneControlsDisabled.Clear();
         }
+    }
 
-        private static void DisableControls()
+    public static void DisableControls()
+    {
+        if (_disableCount == 0)
         {
             foreach (MonoBehaviour controls in _ktaneControlsManaged)
             {
@@ -53,5 +60,7 @@ namespace Assets.Scripts
                 }
             }
         }
+
+        _disableCount++;
     }
 }

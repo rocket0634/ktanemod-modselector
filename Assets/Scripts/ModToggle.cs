@@ -22,6 +22,18 @@ public class ModToggle : MonoBehaviour
 
     public float transitionDuration = 0.5f;
 
+    public bool IsActive
+    {
+        get
+        {
+            return _toggle.isOn;
+        }
+        private set
+        {
+            _toggle.isOn = value;
+        }
+    }
+
     private Toggle _toggle = null;
 
 	private void Awake()
@@ -30,24 +42,18 @@ public class ModToggle : MonoBehaviour
         modIDText.text = module.ModuleType;
 
         _toggle = GetComponent<Toggle>();
-        _toggle.isOn = modSelectorService.IsModuleActive(module.ModuleType);
-        backgroundImage.color = _toggle.isOn ? onColor : offColor;
-        modNameText.color = _toggle.isOn ? textOnColor : textOffColor;
-        modIDText.color = _toggle.isOn ? textOnColor : textOffColor;
-        emojiImage.color = _toggle.isOn ? emojiOnColor : emojiOffColor;
+        IsActive = modSelectorService.IsModuleActive(module.ModuleType);
+        OnToggleChanged(IsActive);
+    }
+
+    private void OnEnable()
+    {
+        IsActive = modSelectorService.IsModuleActive(module.ModuleType);
+        OnToggleChanged(IsActive);
     }
 
     public void OnToggleChanged(bool state)
     {
-        if (state)
-        {
-            modSelectorService.EnableModule(module.ModuleType);
-        }
-        else
-        {
-            modSelectorService.DisableModule(module.ModuleType);
-        }
-
         backgroundImage.color = state ? onColor : offColor;
         modNameText.color = state ? textOnColor : textOffColor;
         modIDText.color = state ? textOnColor : textOffColor;

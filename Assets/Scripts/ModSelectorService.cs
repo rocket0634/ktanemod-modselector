@@ -4,8 +4,9 @@ using System.Reflection;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
 
-[RequireComponent(typeof(KMGameInfo))]
 public class ModSelectorService : MonoBehaviour
 {
     #region Nested Types
@@ -88,9 +89,9 @@ public class ModSelectorService : MonoBehaviour
         GetNeedyModules();
         GetActiveModules();
 
-        CreateToggleButtons();
+        LoadDefaults();
 
-        HookUpGameEvents();
+        PopulateModSelectorWindow();
     }
     #endregion
 
@@ -151,41 +152,13 @@ public class ModSelectorService : MonoBehaviour
         _activeModules = loadedBombComponentsField.GetValue(modManager) as IDictionary;
     }
 
-    private void CreateToggleButtons()
+    private void PopulateModSelectorWindow()
     {
-        _canvas = GetComponentInChildren<ModSelectorCanvas>();
+        ModSelectorWindow window = GetComponentInChildren<ModSelectorWindow>(true);
 
-        foreach (SolvableModule module in _allSolvableModules.Values.OrderBy((x) => x.SolvableBombModule.ModuleDisplayName))
-        {
-            _canvas.normalModuleGrid.CreateToggle(this, module, GetEmojiSprite(module.ModuleType));
-        }
-
-        foreach (NeedyModule module in _allNeedyModules.Values.OrderBy((x) => x.NeedyBombModule.ModuleDisplayName))
-        {
-            _canvas.needyModuleGrid.CreateToggle(this, module, GetEmojiSprite(module.ModuleType));
-        }
-
-        _canvas.gameObject.SetActive(true);
-    }
-
-    private void HookUpGameEvents()
-    {
-        GetComponent<KMGameInfo>().OnStateChange += OnStateChange;
-    }
-
-    private void OnStateChange(KMGameInfo.State state)
-    {
-        switch (state)
-        {
-            case KMGameInfo.State.Transitioning:
-                _canvas.gameObject.SetActive(false);
-                break;
-            case KMGameInfo.State.Setup:
-                _canvas.gameObject.SetActive(true);
-                break;
-            default:
-                break;
-        }
+        window.SetupService(this);
+        window.SetupNormalModules(_allSolvableModules.Values.OrderBy((x) => x.SolvableBombModule.ModuleDisplayName));
+        window.SetupNeedyModules(_allNeedyModules.Values.OrderBy((x) => x.NeedyBombModule.ModuleDisplayName));
     }
     #endregion
 
@@ -214,6 +187,8 @@ public class ModSelectorService : MonoBehaviour
         {
             Debug.LogError(string.Format("Cannot enable module with type name '{0}'.", typeName));
         }
+
+        _disabledModules.Remove(typeName);
     }
 
     public void DisableModule(string typeName)
@@ -224,11 +199,64 @@ public class ModSelectorService : MonoBehaviour
         }
 
         _activeModules.Remove(typeName);
+        _disabledModules.Add(typeName);
+    }
+
+    public void EnableAllModules()
+    {
+        _activeModules.Clear();
+        _disabledModules.Clear();
+
+        foreach (KeyValuePair<string, SolvableModule> solvableModule in _allSolvableModules)
+        {
+            _activeModules.Add(solvableModule.Key, solvableModule.Value.Component);
+        }
+
+        foreach (KeyValuePair<string, NeedyModule> needyModule in _allNeedyModules)
+        {
+            _activeModules.Add(needyModule.Key, needyModule.Value.Component);
+        }
     }
 
     public void DisableAllModules()
     {
         _activeModules.Clear();
+
+        _disabledModules.Clear();
+        _disabledModules.AddRange(_allNeedyModules.Keys);
+    }
+
+    public void LoadDefaults()
+    {
+        try
+        {
+            string path = Path.Combine(Application.persistentDataPath, "disabledMods.json");
+            string jsonInput = File.ReadAllText(path);
+
+            List<string> disabledModules = JsonConvert.DeserializeObject<List<string>>(jsonInput);
+            foreach(string disabledModule in disabledModules)
+            {
+                DisableModule(disabledModule);
+            }
+
+            SaveDefaults();
+        }
+        catch (Exception ex)
+        {
+        }
+    }
+
+    public void SaveDefaults()
+    {
+        try
+        {
+            string jsonOutput = Newtonsoft.Json.JsonConvert.SerializeObject(_disabledModules);
+            string path = Path.Combine(Application.persistentDataPath, "disabledMods.json");
+            File.WriteAllText(path, jsonOutput);
+        }
+        catch (Exception ex)
+        {
+        }
     }
 
     public Sprite GetEmojiSprite(string moduleID)
@@ -251,12 +279,11 @@ public class ModSelectorService : MonoBehaviour
     #endregion
 
     #region Private Fields & Properties
-    private ModSelectorCanvas _canvas = null;
-
     private Dictionary<string, SolvableModule> _allSolvableModules = null;
     private Dictionary<string, NeedyModule> _allNeedyModules = null;
 
     private IDictionary _activeModules = null;
+    private List<string> _disabledModules = new List<string>();
 
     private Type _modManagerType = null;
 
