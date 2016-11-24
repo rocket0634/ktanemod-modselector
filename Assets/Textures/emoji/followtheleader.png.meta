@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 5866e4767a7bd164a9f4ecdcbbc93cc4
-timeCreated: 1479933158
+guid: cd628667779edab4ba21ac383a6e52d3
+timeCreated: 1479941422
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName: {}
@@ -27,10 +27,10 @@ TextureImporter:
   cubemapConvolutionExponent: 1.5
   seamlessCubemap: 0
   textureFormat: -3
-  maxTextureSize: 64
+  maxTextureSize: 32
   textureSettings:
     filterMode: 0
-    aniso: 16
+    aniso: 0
     mipBias: -1
     wrapMode: 1
   nPOTScale: 0
@@ -43,7 +43,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spriteBorder: {x: 4, y: 4, z: 4, w: 4}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spritePixelsToUnits: 100
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -53,7 +53,7 @@ TextureImporter:
     serializedVersion: 2
     sprites: []
     outline: []
-  spritePackingTag: 
+  spritePackingTag: emoji
   userData: 
   assetBundleName: mod.bundle
   assetBundleVariant: 

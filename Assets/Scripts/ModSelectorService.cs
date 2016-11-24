@@ -5,7 +5,6 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(KMService))]
 [RequireComponent(typeof(KMGameInfo))]
 public class ModSelectorService : MonoBehaviour
 {
@@ -105,10 +104,10 @@ public class ModSelectorService : MonoBehaviour
         MethodInfo getSolvableBombModulesMethod = _modManagerType.GetMethod("GetSolvableBombModules", BindingFlags.Instance | BindingFlags.Public);
         IList solvableBombModuleList = getSolvableBombModulesMethod.Invoke(modManager, null) as IList;
 
-        Type bombComponentType = FindType("BombComponent");
-        MethodInfo getModuleDisplayNameMethod = bombComponentType.GetMethod("GetModuleDisplayName", BindingFlags.Instance | BindingFlags.Public);
+        //Type bombComponentType = ReflectionHelper.FindType("BombComponent");
+        //MethodInfo getModuleDisplayNameMethod = bombComponentType.GetMethod("GetModuleDisplayName", BindingFlags.Instance | BindingFlags.Public);
 
-        Type modBombComponentType = FindType("ModBombComponent");
+        Type modBombComponentType = ReflectionHelper.FindType("ModBombComponent");
         FieldInfo moduleField = modBombComponentType.GetField("module", BindingFlags.Instance | BindingFlags.NonPublic);
 
         foreach (object solvableBombModule in solvableBombModuleList)
@@ -129,10 +128,10 @@ public class ModSelectorService : MonoBehaviour
         MethodInfo getNeedyModulesMethod = _modManagerType.GetMethod("GetNeedyModules", BindingFlags.Instance | BindingFlags.Public);
         IList needyModuleList = getNeedyModulesMethod.Invoke(modManager, null) as IList;
 
-        Type needyComponentType = FindType("NeedyComponent");
-        MethodInfo getModuleDisplayNameMethod = needyComponentType.GetMethod("GetModuleDisplayName", BindingFlags.Instance | BindingFlags.Public);
+        //Type needyComponentType = ReflectionHelper.FindType("NeedyComponent");
+        //MethodInfo getModuleDisplayNameMethod = needyComponentType.GetMethod("GetModuleDisplayName", BindingFlags.Instance | BindingFlags.Public);
 
-        Type modNeedyComponentType = FindType("ModNeedyComponent");
+        Type modNeedyComponentType = ReflectionHelper.FindType("ModNeedyComponent");
         FieldInfo moduleField = modNeedyComponentType.GetField("module", BindingFlags.Instance | BindingFlags.NonPublic);
 
         foreach(object needyModule in needyModuleList)
@@ -154,19 +153,19 @@ public class ModSelectorService : MonoBehaviour
 
     private void CreateToggleButtons()
     {
-        _modScrollList = GetComponentInChildren<ModScrollList>();
+        _canvas = GetComponentInChildren<ModSelectorCanvas>();
 
         foreach (SolvableModule module in _allSolvableModules.Values.OrderBy((x) => x.SolvableBombModule.ModuleDisplayName))
         {
-            _modScrollList.CreateToggle(this, module);
+            _canvas.normalModuleGrid.CreateToggle(this, module, GetEmojiSprite(module.ModuleType));
         }
 
         foreach (NeedyModule module in _allNeedyModules.Values.OrderBy((x) => x.NeedyBombModule.ModuleDisplayName))
         {
-            _modScrollList.CreateToggle(this, module);
+            _canvas.needyModuleGrid.CreateToggle(this, module, GetEmojiSprite(module.ModuleType));
         }
 
-        _modScrollList.gameObject.SetActive(false);
+        _canvas.gameObject.SetActive(true);
     }
 
     private void HookUpGameEvents()
@@ -179,10 +178,10 @@ public class ModSelectorService : MonoBehaviour
         switch (state)
         {
             case KMGameInfo.State.Transitioning:
-                _modScrollList.gameObject.SetActive(false);
+                _canvas.gameObject.SetActive(false);
                 break;
             case KMGameInfo.State.Setup:
-                _modScrollList.gameObject.SetActive(true);
+                _canvas.gameObject.SetActive(true);
                 break;
             default:
                 break;
@@ -231,19 +230,28 @@ public class ModSelectorService : MonoBehaviour
     {
         _activeModules.Clear();
     }
-    #endregion
 
-    #region Helpers
-    private static Type FindType(string fullName)
+    public Sprite GetEmojiSprite(string moduleID)
     {
-        return AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).FirstOrDefault(t => t.FullName.Equals(fullName));
+        for (int emojiIndex = 0; emojiIndex < emojiIDs.Length; ++emojiIndex)
+        {
+            if (emojiIDs[emojiIndex].Equals(moduleID))
+            {
+                return emojiSprites[emojiIndex];
+            }
+        }
+
+        return null;
     }
     #endregion
 
-    #region Private Fields & Properties
-    private bool _initialSetupHit = false;
+    #region Public Fields
+    public string[] emojiIDs = null;
+    public Sprite[] emojiSprites = null;
+    #endregion
 
-    private ModScrollList _modScrollList = null;
+    #region Private Fields & Properties
+    private ModSelectorCanvas _canvas = null;
 
     private Dictionary<string, SolvableModule> _allSolvableModules = null;
     private Dictionary<string, NeedyModule> _allNeedyModules = null;
@@ -259,7 +267,7 @@ public class ModSelectorService : MonoBehaviour
         {
             if (_modManager == null)
             {
-                _modManagerType = FindType("ModManager");
+                _modManagerType = ReflectionHelper.FindType("ModManager");
                 _modManager = FindObjectOfType(_modManagerType);
             }
 

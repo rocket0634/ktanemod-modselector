@@ -5,41 +5,36 @@ public class ModToggle : MonoBehaviour
 {
     public ModSelectorService.Module module = null;
     public ModSelectorService modSelectorService = null;
-    public float offOffset = 50.0f;
-    public float animationDuration = 0.5f;
 
-    public Transform offsetTransform = null;
     public Image backgroundImage = null;
+    public Image emojiImage = null;
+    public Text modNameText = null;
+    public Text modIDText = null;
+
+    public Color onColor = Color.white;
     public Color offColor = Color.white;
 
-    private float _delta = 0.0f;
-    private float _direction = 0.0f;
+    public Color textOnColor = Color.black;
+    public Color textOffColor = Color.black;
+
+    public Color emojiOnColor = Color.white;
+    public Color emojiOffColor = Color.white;
+
+    public float transitionDuration = 0.5f;
+
+    private Toggle _toggle = null;
 
 	private void Awake()
     {
-        GetComponentInChildren<Text>().text = module.ModuleName;
-        GetComponent<Toggle>().isOn = modSelectorService.IsModuleActive(module.ModuleType);
-	}
+        modNameText.text = module.ModuleName;
+        modIDText.text = module.ModuleType;
 
-    private void Update()
-    {
-        if (_direction != 0.0f)
-        {
-            float newDelta = Mathf.Clamp(_delta + (_direction * Time.deltaTime) / animationDuration, 0.0f, 1.0f);
-
-            float oldOffset = Mathf.SmoothStep(0.0f, offOffset, _delta);
-            float newOffset = Mathf.SmoothStep(0.0f, offOffset, newDelta);
-
-            offsetTransform.Translate(newOffset - oldOffset, 0.0f, 0.0f, Space.Self);
-
-            _delta = newDelta;
-            if (_delta <= 0.0f || _delta >= 1.0f)
-            {
-                _direction = 0.0f;
-            }
-
-            backgroundImage.color = Color.Lerp(Color.white, offColor, _delta);
-        }
+        _toggle = GetComponent<Toggle>();
+        _toggle.isOn = modSelectorService.IsModuleActive(module.ModuleType);
+        backgroundImage.color = _toggle.isOn ? onColor : offColor;
+        modNameText.color = _toggle.isOn ? textOnColor : textOffColor;
+        modIDText.color = _toggle.isOn ? textOnColor : textOffColor;
+        emojiImage.color = _toggle.isOn ? emojiOnColor : emojiOffColor;
     }
 
     public void OnToggleChanged(bool state)
@@ -47,12 +42,15 @@ public class ModToggle : MonoBehaviour
         if (state)
         {
             modSelectorService.EnableModule(module.ModuleType);
-            _direction = -1.0f;
         }
         else
         {
             modSelectorService.DisableModule(module.ModuleType);
-            _direction = 1.0f;
         }
+
+        backgroundImage.color = state ? onColor : offColor;
+        modNameText.color = state ? textOnColor : textOffColor;
+        modIDText.color = state ? textOnColor : textOffColor;
+        emojiImage.color = state ? emojiOnColor : emojiOffColor;
     }
 }
