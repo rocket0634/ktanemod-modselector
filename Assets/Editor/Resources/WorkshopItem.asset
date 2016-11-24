@@ -22,14 +22,13 @@ MonoBehaviour:
     pack, such as Hexi''s Advanced Modules.
 
 
-    This is only the first version, and as such is not feature-complete. I would like
-    to add in further functionality to save/load existing preferences, and also would
-    ideally like to have the UI be embedded within the 3D world, rather than a 2D
-    UI overlay.
+    As of v1.0.2, this will now save your current configuration across multiple runs
+    of KTaNE and offers a far more user-friendly UI.
 
 
-    There may be issues with using Gamepad, as I have not tested this at all with
-    Gamepad.'
+    Thanks to:
+
+    Lumbud84 for the emoji artwork for the modules :)'
   PreviewImage: {fileID: 2800000, guid: 3635e2c54a9c5ee4e9896ba11c4f5a43, type: 3}
   Tags:
   - Other
