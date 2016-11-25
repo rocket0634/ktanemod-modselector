@@ -868,7 +868,7 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9969574, g: 1, b: 0.7794118, a: 1}
+    m_HighlightedColor: {r: 1, g: 0.8705882, b: 0.14705884, a: 1}
     m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.19117647, g: 0.19117647, b: 0.19117647, a: 1}
     m_ColorMultiplier: 1
@@ -1190,8 +1190,8 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 1, g: 0.87413794, b: 0.46323532, a: 1}
-    m_PressedColor: {r: 1, g: 0.7768763, b: 0.19117647, a: 1}
+    m_HighlightedColor: {r: 1, g: 0.76551723, b: 0, a: 1}
+    m_PressedColor: {r: 0.83823526, g: 0.63420236, b: 0.09861591, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1506,6 +1506,8 @@ MonoBehaviour:
   - monsplodeWho
   - ButtonV2
   - RockPaperScissorsLizardSpockModule
+  - BitmapsModule
+  - HexamazeModule
   emojiSprites:
   - {fileID: 21300000, guid: 010d7434c8a156242ad994b40f6d2f72, type: 3}
   - {fileID: 21300000, guid: 5fdf62226c27b0540ada39f00385bf8e, type: 3}
@@ -1569,6 +1571,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 88ef2ae50a658ba429f50e86a8e2ba5c, type: 3}
   - {fileID: 21300000, guid: 0298074b91118c541a40acabfee71ea5, type: 3}
   - {fileID: 21300000, guid: 306fbda4b811dab42a06ae89fb47a3e5, type: 3}
+  - {fileID: 21300000, guid: 542ac30288cb0184dbfb8bc83242d4d8, type: 3}
+  - {fileID: 21300000, guid: 3a672df066455d34e90a412b5b590ed7, type: 3}
 --- !u!114 &114000013308676902
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1601,7 +1605,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cancel
+  m_Text: Back
 --- !u!114 &114000013361253122
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1684,7 +1688,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: OK
+  m_Text: Apply
 --- !u!114 &114000013531904416
 MonoBehaviour:
   m_ObjectHideFlags: 1
