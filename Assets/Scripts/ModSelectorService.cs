@@ -78,6 +78,36 @@ public class ModSelectorService : MonoBehaviour
             }
         }
     }
+
+    public sealed class Service
+    {
+        public Service(KMService service)
+        {
+            ServiceObject = service.gameObject;
+        }
+
+        public readonly GameObject ServiceObject;
+
+        public string ServiceName
+        {
+            get
+            {
+                return ServiceObject.name;
+            }
+        }
+
+        public bool IsEnabled
+        {
+            get
+            {
+                return ServiceObject.activeSelf;
+            }
+            set
+            {
+                ServiceObject.SetActive(value);
+            }
+        }
+    }
     #endregion
 
     #region Unity Lifecycle
@@ -85,9 +115,13 @@ public class ModSelectorService : MonoBehaviour
     {
         DontDestroyOnLoad(gameObject);
 
+        //For modules
         GetSolvableModules();
         GetNeedyModules();
         GetActiveModules();
+
+        //For services
+        GetModServices();
 
         LoadDefaults();
 
@@ -104,9 +138,6 @@ public class ModSelectorService : MonoBehaviour
 
         MethodInfo getSolvableBombModulesMethod = _modManagerType.GetMethod("GetSolvableBombModules", BindingFlags.Instance | BindingFlags.Public);
         IList solvableBombModuleList = getSolvableBombModulesMethod.Invoke(modManager, null) as IList;
-
-        //Type bombComponentType = ReflectionHelper.FindType("BombComponent");
-        //MethodInfo getModuleDisplayNameMethod = bombComponentType.GetMethod("GetModuleDisplayName", BindingFlags.Instance | BindingFlags.Public);
 
         Type modBombComponentType = ReflectionHelper.FindType("ModBombComponent");
         FieldInfo moduleField = modBombComponentType.GetField("module", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -129,9 +160,6 @@ public class ModSelectorService : MonoBehaviour
         MethodInfo getNeedyModulesMethod = _modManagerType.GetMethod("GetNeedyModules", BindingFlags.Instance | BindingFlags.Public);
         IList needyModuleList = getNeedyModulesMethod.Invoke(modManager, null) as IList;
 
-        //Type needyComponentType = ReflectionHelper.FindType("NeedyComponent");
-        //MethodInfo getModuleDisplayNameMethod = needyComponentType.GetMethod("GetModuleDisplayName", BindingFlags.Instance | BindingFlags.Public);
-
         Type modNeedyComponentType = ReflectionHelper.FindType("ModNeedyComponent");
         FieldInfo moduleField = modNeedyComponentType.GetField("module", BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -152,6 +180,20 @@ public class ModSelectorService : MonoBehaviour
         _activeModules = loadedBombComponentsField.GetValue(modManager) as IDictionary;
     }
 
+    private void GetModServices()
+    {
+        KMService[] modServices = FindObjectsOfType<KMService>();
+
+        foreach (KMService modService in modServices)
+        {
+            Service service = new Service(modService);
+            _allServices.Add(service.ServiceName, service);
+        }
+
+        //"ModBomb"
+        //"ModGameplayRoom"
+    }
+
     private void PopulateModSelectorWindow()
     {
         ModSelectorWindow window = GetComponentInChildren<ModSelectorWindow>(true);
@@ -159,21 +201,25 @@ public class ModSelectorService : MonoBehaviour
         window.SetupService(this);
         window.SetupNormalModules(_allSolvableModules.Values.OrderBy((x) => x.SolvableBombModule.ModuleDisplayName));
         window.SetupNeedyModules(_allNeedyModules.Values.OrderBy((x) => x.NeedyBombModule.ModuleDisplayName));
+        window.SetupServices(_allServices.Values.OrderBy((x) => x.ServiceName));
     }
     #endregion
 
     #region Actions
+    #region Modules
     public bool IsModuleActive(string typeName)
     {
         return _activeModules.Contains(typeName);
     }
 
-    public void EnableModule(string typeName)
+    public bool EnableModule(string typeName)
     {
         if (_activeModules.Contains(typeName))
         {
-            return;
+            return false;
         }
+
+        bool success = true;
 
         if (_allSolvableModules.ContainsKey(typeName))
         {
@@ -186,20 +232,23 @@ public class ModSelectorService : MonoBehaviour
         else
         {
             Debug.LogError(string.Format("Cannot enable module with type name '{0}'.", typeName));
+            success = false;
         }
 
         _disabledModules.Remove(typeName);
+        return success;
     }
 
-    public void DisableModule(string typeName)
+    public bool DisableModule(string typeName)
     {
         if (!_activeModules.Contains(typeName))
         {
-            return;
+            return false;
         }
 
         _activeModules.Remove(typeName);
         _disabledModules.Add(typeName);
+        return true;
     }
 
     public void EnableAllModules()
@@ -225,6 +274,57 @@ public class ModSelectorService : MonoBehaviour
         _disabledModules.Clear();
         _disabledModules.AddRange(_allNeedyModules.Keys);
     }
+    #endregion
+
+    #region Services
+    public bool IsServiceActive(string serviceName)
+    {
+        if (_allServices.ContainsKey(serviceName))
+        {
+            return _allServices[serviceName].IsEnabled;
+        }
+
+        return false;
+    }
+
+    public bool EnableService(string serviceName)
+    {
+        if (!_allServices.ContainsKey(serviceName))
+        {
+            return false;
+        }
+
+        _allServices[serviceName].IsEnabled = true;
+        return true;
+    }
+
+    public bool DisableService(string serviceName)
+    {
+        if (!_allServices.ContainsKey(serviceName))
+        {
+            return false;
+        }
+
+        _allServices[serviceName].IsEnabled = false;
+        return true;
+    }
+
+    public void EnableAllServices()
+    {
+        foreach(Service service in _allServices.Values)
+        {
+            service.IsEnabled = true;
+        }
+    }
+
+    public void DisableAllServices()
+    {
+        foreach (Service service in _allServices.Values)
+        {
+            service.IsEnabled = false;
+        }
+    }
+    #endregion
 
     public void LoadDefaults()
     {
@@ -279,11 +379,17 @@ public class ModSelectorService : MonoBehaviour
     #endregion
 
     #region Private Fields & Properties
+    #region Modules
     private Dictionary<string, SolvableModule> _allSolvableModules = null;
     private Dictionary<string, NeedyModule> _allNeedyModules = null;
 
     private IDictionary _activeModules = null;
     private List<string> _disabledModules = new List<string>();
+    #endregion
+
+    #region Services
+    private Dictionary<string, Service> _allServices = new Dictionary<string, Service>();
+    #endregion
 
     private Type _modManagerType = null;
 

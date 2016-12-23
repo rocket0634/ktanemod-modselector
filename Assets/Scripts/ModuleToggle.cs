@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class ModToggle : MonoBehaviour
+public class ModuleToggle : MonoBehaviour
 {
     public ModSelectorService.Module module = null;
     public ModSelectorService modSelectorService = null;

@@ -5,14 +5,15 @@ using UnityEngine.EventSystems;
 
 public class ModSelectorWindow : MonoBehaviour
 {
-    public ModGrid normalModuleGrid = null;
-    public ModGrid needyModuleGrid = null;
+    public ModuleGrid normalModuleGrid = null;
+    public ModuleGrid needyModuleGrid = null;
+    public ServiceGrid serviceGrid = null;
 
-    public IEnumerable<string> DisabledModuleTypeNames
+    public IEnumerable<string> DisabledModNames
     {
         get
         {
-            return normalModuleGrid.DisabledModuleTypeNames.Concat(needyModuleGrid.DisabledModuleTypeNames);
+            return normalModuleGrid.DisabledModuleTypeNames.Concat(needyModuleGrid.DisabledModuleTypeNames).Concat(serviceGrid.DisabledServiceNames);
         }
     }
 
@@ -29,7 +30,7 @@ public class ModSelectorWindow : MonoBehaviour
     {
         foreach (ModSelectorService.SolvableModule module in normalModules)
         {
-            normalModuleGrid.CreateToggle(_service, module, _service.GetEmojiSprite(module.ModuleType));
+            normalModuleGrid.CreateModuleToggle(_service, module, _service.GetEmojiSprite(module.ModuleType));
         }
     }
 
@@ -37,17 +38,29 @@ public class ModSelectorWindow : MonoBehaviour
     {
         foreach (ModSelectorService.NeedyModule module in needyModules)
         {
-            needyModuleGrid.CreateToggle(_service, module, _service.GetEmojiSprite(module.ModuleType));
+            needyModuleGrid.CreateModuleToggle(_service, module, _service.GetEmojiSprite(module.ModuleType));
+        }
+    }
+
+    public void SetupServices(IEnumerable<ModSelectorService.Service> services)
+    {
+        foreach (ModSelectorService.Service service in services)
+        {
+            serviceGrid.CreateServiceToggle(_service, service);
         }
     }
 
     public void OnOK()
     {
         _service.EnableAllModules();
+        _service.EnableAllServices();
 
-        foreach (string moduleTypeName in DisabledModuleTypeNames)
+        foreach (string modName in DisabledModNames)
         {
-            _service.DisableModule(moduleTypeName);
+            if (!_service.DisableModule(modName))
+            {
+                _service.DisableService(modName);
+            }
         }
 
         _service.SaveDefaults();
@@ -89,7 +102,7 @@ public class ModSelectorWindow : MonoBehaviour
         InputInterceptor.DisableControls();
 
         EventSystem eventSystem = EventSystem.current;
-        eventSystem.SetSelectedGameObject(GetComponentInChildren<ModToggle>(true).gameObject);
+        eventSystem.SetSelectedGameObject(GetComponentInChildren<ModuleToggle>(true).gameObject);
 
         _animator.Play("Fade In");
     }
