@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ModuleGrid : MonoBehaviour
 {
@@ -30,5 +31,21 @@ public class ModuleGrid : MonoBehaviour
         modToggle.transform.SetParent(transform, false);
 
         moduleToggleList.Add(modToggle);
+    }
+
+    public void EnableAll()
+    {
+        foreach(ModuleToggle moduleToggle in moduleToggleList)
+        {
+            moduleToggle.IsActive = true;
+        }
+    }
+
+    public void DisableAll()
+    {
+        foreach (ModuleToggle moduleToggle in moduleToggleList)
+        {
+            moduleToggle.IsActive = false;
+        }
     }
 }

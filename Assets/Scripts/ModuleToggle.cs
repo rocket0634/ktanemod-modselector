@@ -28,7 +28,7 @@ public class ModuleToggle : MonoBehaviour
         {
             return _toggle.isOn;
         }
-        private set
+        set
         {
             _toggle.isOn = value;
         }

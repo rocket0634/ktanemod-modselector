@@ -23,7 +23,7 @@ public class ServiceToggle : MonoBehaviour
         {
             return _toggle.isOn;
         }
-        private set
+        set
         {
             _toggle.isOn = value;
         }
@@ -33,7 +33,7 @@ public class ServiceToggle : MonoBehaviour
 
     private void Awake()
     {
-        modNameText.text = service.ServiceName;
+        modNameText.text = service.ServiceName.Replace("(Clone)", "");
 
         _toggle = GetComponent<Toggle>();
         IsActive = modSelectorService.IsServiceActive(service.ServiceName);

@@ -68,8 +68,26 @@ public class ModSelectorWindow : MonoBehaviour
         Close();
     }
 
+    public void OnTemporaryOK()
+    {
+        _service.EnableAllModules();
+        _service.EnableAllServices();
+
+        foreach (string modName in DisabledModNames)
+        {
+            if (!_service.DisableModule(modName))
+            {
+                _service.DisableService(modName);
+            }
+        }
+
+        Close();
+    }
+
     public void OnCancel()
     {
+        _service.LoadDefaults();
+
         Close();
     }
 

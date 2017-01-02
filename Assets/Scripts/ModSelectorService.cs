@@ -126,6 +126,9 @@ public class ModSelectorService : MonoBehaviour
         LoadDefaults();
 
         PopulateModSelectorWindow();
+
+        SetupLoadProfileWindow();
+        SetupSaveProfileWindow();
     }
     #endregion
 
@@ -186,7 +189,14 @@ public class ModSelectorService : MonoBehaviour
 
         foreach (KMService modService in modServices)
         {
-            Service service = new Service(modService);
+            ModSelectorService itself = modService.GetComponent<ModSelectorService>();
+            if (itself != null)
+            {
+                //Don't add mod selector service/itself to this dictionary!
+                continue;
+            }
+
+            Service service = new Service(modService);            
             _allServices.Add(service.ServiceName, service);
         }
 
@@ -202,6 +212,18 @@ public class ModSelectorService : MonoBehaviour
         window.SetupNormalModules(_allSolvableModules.Values.OrderBy((x) => x.SolvableBombModule.ModuleDisplayName));
         window.SetupNeedyModules(_allNeedyModules.Values.OrderBy((x) => x.NeedyBombModule.ModuleDisplayName));
         window.SetupServices(_allServices.Values.OrderBy((x) => x.ServiceName));
+    }
+
+    private void SetupLoadProfileWindow()
+    {
+        LoadProfileWindow window = GetComponentInChildren<LoadProfileWindow>(true);
+        window.SetupService(this);
+    }
+
+    private void SetupSaveProfileWindow()
+    {
+        SaveProfileWindow window = GetComponentInChildren<SaveProfileWindow>(true);
+        window.SetupService(this);
     }
     #endregion
 
@@ -272,6 +294,7 @@ public class ModSelectorService : MonoBehaviour
         _activeModules.Clear();
 
         _disabledModules.Clear();
+        _disabledModules.AddRange(_allSolvableModules.Keys);
         _disabledModules.AddRange(_allNeedyModules.Keys);
     }
     #endregion
@@ -326,38 +349,134 @@ public class ModSelectorService : MonoBehaviour
     }
     #endregion
 
+    #region File I/O
+    private string ProfileDirectory
+    {
+        get
+        {
+            return Path.Combine(Application.persistentDataPath, "ModProfiles");
+        }
+    }
+
+    private void EnsureProfileDirectory()
+    {
+        Directory.CreateDirectory(ProfileDirectory);
+    }
+
+    public IEnumerable<string> AvailableProfiles
+    {
+        get
+        {
+            EnsureProfileDirectory();
+            string[] files = Directory.GetFiles(ProfileDirectory);
+            foreach(string file in files)
+            {
+                Debug.Log("Profile found: " + file);
+
+                string extension = Path.GetExtension(file);
+                if (!extension.Equals(".json"))
+                {
+                    continue;
+                }
+
+                yield return Path.GetFileNameWithoutExtension(file);
+            }
+        }
+    }
+
     public void LoadDefaults()
     {
-        try
-        {
-            string path = Path.Combine(Application.persistentDataPath, "disabledMods.json");
-            string jsonInput = File.ReadAllText(path);
-
-            List<string> disabledModules = JsonConvert.DeserializeObject<List<string>>(jsonInput);
-            foreach(string disabledModule in disabledModules)
-            {
-                DisableModule(disabledModule);
-            }
-
-            SaveDefaults();
-        }
-        catch (Exception ex)
-        {
-        }
+        LoadConfigurationFromFile(Path.Combine(Application.persistentDataPath, "disabledMods.json"));
     }
 
     public void SaveDefaults()
     {
+        SaveConfigurationToFile(Path.Combine(Application.persistentDataPath, "disabledMods.json"));
+    }
+
+    public void LoadTemporary()
+    {
+        if (!string.IsNullOrEmpty(_tempFilename))
+        {
+            LoadConfigurationFromFile(_tempFilename);
+        }
+    }
+
+    public void LoadProfile(string profileName)
+    {
+        EnsureProfileDirectory();
+        LoadConfigurationFromFile(Path.Combine(ProfileDirectory, string.Format("{0}.json", profileName)));
+    }
+
+    public void SaveProfile(string profileName)
+    {
+        EnsureProfileDirectory();
+        SaveConfigurationToFile(Path.Combine(ProfileDirectory, string.Format("{0}.json", profileName)));
+        SaveDefaults();
+    }
+
+    public void SaveTemporaryProfile()
+    {
+        _tempFilename = Path.GetTempFileName();
+        SaveConfigurationToFile(_tempFilename);
+    }
+
+    public void LoadConfigurationFromFile(string path)
+    {
         try
         {
-            string jsonOutput = Newtonsoft.Json.JsonConvert.SerializeObject(_disabledModules);
-            string path = Path.Combine(Application.persistentDataPath, "disabledMods.json");
-            File.WriteAllText(path, jsonOutput);
+            Debug.Log("Loading configuration from file: " + path);
+
+            //Ensure all modules & services are enabled first
+            EnableAllModules();
+            EnableAllServices();
+
+            string jsonInput = File.ReadAllText(path);
+
+            List<string> disabledMods = JsonConvert.DeserializeObject<List<string>>(jsonInput);
+            foreach (string disabledMod in disabledMods)
+            {
+                if (!DisableModule(disabledMod))
+                {
+                    DisableService(disabledMod);
+                }
+            }
+
+            SaveDefaults();
+        }
+        catch (FileNotFoundException ex)
+        {
+            Debug.LogWarning(string.Format("File {0} was not found.", path));
         }
         catch (Exception ex)
         {
+            Debug.LogException(ex);
         }
     }
+
+    public void SaveConfigurationToFile(string path)
+    {
+        try
+        {
+            Debug.Log("Saving configuration to file: " + path);
+
+            List<string> allDisabledMods = new List<string>();
+            allDisabledMods.AddRange(_disabledModules);
+            allDisabledMods.AddRange(_allServices.Values.Where((x) => !x.IsEnabled).Select((y) => y.ServiceName));
+
+            string jsonOutput = JsonConvert.SerializeObject(allDisabledMods);
+            File.WriteAllText(path, jsonOutput);
+        }
+        catch (FileNotFoundException ex)
+        {
+            Debug.LogWarning(string.Format("File {0} was not found.", path));
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+    #endregion
 
     public Sprite GetEmojiSprite(string moduleID)
     {
@@ -407,5 +526,7 @@ public class ModSelectorService : MonoBehaviour
             return _modManager;
         }
     }
+
+    private string _tempFilename = null;
     #endregion
 }

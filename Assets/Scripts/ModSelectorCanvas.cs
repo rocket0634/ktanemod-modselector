@@ -3,6 +3,8 @@
 public class ModSelectorCanvas : MonoBehaviour
 {
     public ModSelectorWindow modSelectorWindow = null;
+    public LoadProfileWindow loadProfileWindow = null;
+    public SaveProfileWindow saveProfileWindow = null;
     public SetupScreenOverlay modSelectorSetupOverlay = null;
 
     private KMGamepad _gamepad = null;
