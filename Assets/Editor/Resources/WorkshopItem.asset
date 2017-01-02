@@ -26,6 +26,11 @@ MonoBehaviour:
     of KTaNE and offers a far more user-friendly UI.
 
 
+    As of v1.0.5, this will now allow the user to save certain configuration profiles,
+    which can then be reloaded at a later stage. It also allows the enabling and disabling
+    of services.
+
+
     Thanks to:
 
     Lumbud84 for the emoji artwork for the modules :)'
