@@ -2,18 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System;
 
 public class ModSelectorWindow : MonoBehaviour
 {
     public ModuleGrid normalModuleGrid = null;
     public ModuleGrid needyModuleGrid = null;
     public ServiceGrid serviceGrid = null;
+    public ModGrid bombGrid = null;
+    public ModGrid gameplayRoomGrid = null;
+    public ModGrid widgetGrid = null;
 
     public IEnumerable<string> DisabledModNames
     {
         get
         {
-            return normalModuleGrid.DisabledModuleTypeNames.Concat(needyModuleGrid.DisabledModuleTypeNames).Concat(serviceGrid.DisabledServiceNames);
+            return normalModuleGrid.DisabledModuleTypeNames.Concat(needyModuleGrid.DisabledModuleTypeNames)
+                                                           .Concat(serviceGrid.DisabledServiceNames)
+                                                           .Concat(bombGrid.DisabledModNames)
+                                                           .Concat(gameplayRoomGrid.DisabledModNames)
+                                                           .Concat(widgetGrid.DisabledModNames);
         }
     }
 
@@ -50,16 +58,48 @@ public class ModSelectorWindow : MonoBehaviour
         }
     }
 
+    public void SetupMods(ModGrid modGrid, IEnumerable<ModSelectorService.ModWrapper> mods, Type modObjectType)
+    {
+        foreach (ModSelectorService.ModWrapper modWrapper in mods)
+        {
+            foreach (KeyValuePair<GameObject, bool> modObject in modWrapper.GetModObjects(modObjectType))
+            {
+                modGrid.CreateModToggle(_service, modWrapper, modObjectType, modObject.Key.name);
+            }
+        }
+    }
+
     public void OnOK()
     {
         _service.EnableAllModules();
         _service.EnableAllServices();
+        _service.EnableAllMods();
 
         foreach (string modName in DisabledModNames)
         {
-            if (!_service.DisableModule(modName))
+            if (_service.DisableModule(modName))
             {
-                _service.DisableService(modName);
+                continue;                
+            }
+
+            if (_service.DisableService(modName))
+            {
+                continue;
+            }
+
+            if (_service.DisableMod(ModSelectorService.ModWrapper.BombType, modName))
+            {
+                continue;
+            }
+
+            if (_service.DisableMod(ModSelectorService.ModWrapper.GameplayRoomType, modName))
+            {
+                continue;
+            }
+
+            if (_service.DisableMod(ModSelectorService.ModWrapper.WidgetType, modName))
+            {
+                continue;
             }
         }
 
@@ -75,9 +115,29 @@ public class ModSelectorWindow : MonoBehaviour
 
         foreach (string modName in DisabledModNames)
         {
-            if (!_service.DisableModule(modName))
+            if (_service.DisableModule(modName))
             {
-                _service.DisableService(modName);
+                continue;                
+            }
+
+            if (_service.DisableService(modName))
+            {
+                continue;
+            }
+
+            if (_service.DisableMod(ModSelectorService.ModWrapper.BombType, modName))
+            {
+                continue;
+            }
+
+            if (_service.DisableMod(ModSelectorService.ModWrapper.GameplayRoomType, modName))
+            {
+                continue;
+            }
+
+            if (_service.DisableMod(ModSelectorService.ModWrapper.WidgetType, modName))
+            {
+                continue;
             }
         }
 

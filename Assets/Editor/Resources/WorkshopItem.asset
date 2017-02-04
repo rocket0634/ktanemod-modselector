@@ -14,26 +14,30 @@ MonoBehaviour:
   WorkshopPublishedFileID: 801400247
   Title: Mod Selector
   Description: 'This mod adds some additional 2D-space UI to allow dynamic selection/veto
-    of all loaded mod modules. Deselecting modules will make them unavailable in Free
-    Play mode and any missions that would normally require them.
+    of all loaded mods. Deselecting mods will make them unavailable in Free Play mode
+    and any missions that would normally require them.
 
 
     This is notably useful for selecting to play with only some modules within a mod
-    pack, such as Hexi''s Advanced Modules.
+    pack, such as Hexi''s Advanced Modules, and also for configuring specific scenarios
+    for practice.
 
 
     As of v1.0.2, this will now save your current configuration across multiple runs
     of KTaNE and offers a far more user-friendly UI.
 
-
     As of v1.0.5, this will now allow the user to save certain configuration profiles,
     which can then be reloaded at a later stage. It also allows the enabling and disabling
     of services.
 
+    As of v1.1.0, this will allow the enabling and disabling of bomb casings (e.g.
+    Double Decker), gameplay rooms (e.g. The Bus That Couldn''t Slow Down), and widgets
+    (e.g. Two-factor Authentication).
+
 
     Thanks to:
 
-    Lumbud84 for the emoji artwork for the modules :)'
+    Lumbud84 & samfun123 for the emoji artwork for the modules :)'
   PreviewImage: {fileID: 2800000, guid: 3635e2c54a9c5ee4e9896ba11c4f5a43, type: 3}
   Tags:
   - Other
