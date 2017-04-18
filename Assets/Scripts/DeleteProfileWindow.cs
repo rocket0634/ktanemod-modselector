@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Linq;
 
-public class LoadProfileWindow : MonoBehaviour
+public class DeleteProfileWindow : MonoBehaviour
 {
     public ProfileOption profileOptionPrefab = null;
     public ToggleGroup toggleGroup = null;
@@ -22,9 +22,10 @@ public class LoadProfileWindow : MonoBehaviour
     {
         Toggle activeToggle = toggleGroup.ActiveToggles().First();
         ProfileOption activeProfile = activeToggle.GetComponent<ProfileOption>();
-        _service.LoadProfile(activeProfile.ProfileName);
+        _service.DeleteProfile(activeProfile.ProfileName);
+        okButton.interactable = false;
 
-        Close();
+        RepopulateList();
     }
 
     public void OnCancel()
@@ -65,13 +66,7 @@ public class LoadProfileWindow : MonoBehaviour
 
         _animator.Play("Fade In");
 
-        foreach (string profile in _service.AvailableProfiles)
-        {
-            ProfileOption profileOption = Instantiate<ProfileOption>(profileOptionPrefab);
-            profileOption.gameObject.SetActive(true);
-            profileOption.transform.SetParent(profileOptionPrefab.transform.parent, false);
-            profileOption.ProfileName = profile;
-        }
+        PopulateList();
     }
 
     private void OnDisable()
@@ -81,10 +76,32 @@ public class LoadProfileWindow : MonoBehaviour
 
         InputInterceptor.EnableControls();
 
+        ClearList();
+    }
+
+    private void ClearList()
+    {
         ProfileOption[] profileOptions = toggleGroup.GetComponentsInChildren<ProfileOption>();
-        foreach(ProfileOption profileOption in profileOptions)
+        foreach (ProfileOption profileOption in profileOptions)
         {
             Destroy(profileOption.gameObject);
         }
+    }
+
+    private void PopulateList()
+    {
+        foreach (string profile in _service.AvailableProfiles)
+        {
+            ProfileOption profileOption = Instantiate<ProfileOption>(profileOptionPrefab);
+            profileOption.gameObject.SetActive(true);
+            profileOption.transform.SetParent(profileOptionPrefab.transform.parent, false);
+            profileOption.ProfileName = profile;
+        }
+    }
+
+    private void RepopulateList()
+    {
+        ClearList();
+        PopulateList();
     }
 }

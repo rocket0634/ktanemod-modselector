@@ -334,6 +334,7 @@ public class ModSelectorService : MonoBehaviour
 
         SetupLoadProfileWindow();
         SetupSaveProfileWindow();
+        SetupDeleteProfileWindow();
     }
     #endregion
 
@@ -355,7 +356,14 @@ public class ModSelectorService : MonoBehaviour
             KMBombModule module = moduleField.GetValue(solvableBombModule) as KMBombModule;
             string moduleTypeName = module.ModuleType;
 
-            _allSolvableModules[moduleTypeName] = new SolvableModule(module, solvableBombModule);
+            if (!_allSolvableModules.ContainsKey(moduleTypeName))
+            {
+                _allSolvableModules[moduleTypeName] = new SolvableModule(module, solvableBombModule);
+            }
+            else
+            {
+                Debug.LogErrorFormat("***** A duplicate regular/solvable module was found under the name {0}! *****", moduleTypeName);
+            }
         }
     }
 
@@ -371,12 +379,19 @@ public class ModSelectorService : MonoBehaviour
         Type modNeedyComponentType = ReflectionHelper.FindType("ModNeedyComponent");
         FieldInfo moduleField = modNeedyComponentType.GetField("module", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        foreach(object needyModule in needyModuleList)
+        foreach (object needyModule in needyModuleList)
         {
             KMNeedyModule module = moduleField.GetValue(needyModule) as KMNeedyModule;
             string moduleTypeName = module.ModuleType;
 
-            _allNeedyModules[moduleTypeName] = new NeedyModule(module, needyModule);
+            if (!_allNeedyModules.ContainsKey(moduleTypeName))
+            {
+                _allNeedyModules[moduleTypeName] = new NeedyModule(module, needyModule);
+            }
+            else
+            {
+                Debug.LogErrorFormat("***** A duplicate needy module was found under the name {0}! *****", moduleTypeName);
+            }
         }
     }
 
@@ -401,8 +416,15 @@ public class ModSelectorService : MonoBehaviour
                 continue;
             }
 
-            Service service = new Service(modService);            
-            _allServices.Add(service.ServiceName, service);
+            Service service = new Service(modService);
+            if (!_allServices.ContainsKey(service.ServiceName))
+            {
+                _allServices.Add(service.ServiceName, service);
+            }
+            else
+            {
+                Debug.LogErrorFormat("***** A duplicate service was found under the name {0}! *****", service.ServiceName);
+            }
         }
     }
 
@@ -412,10 +434,18 @@ public class ModSelectorService : MonoBehaviour
 
         FieldInfo modsField = _modManagerType.GetField("mods", BindingFlags.Instance | BindingFlags.NonPublic);
         IList modsList = (IList)modsField.GetValue(modManager);
-        foreach(object modObject in modsList)
+        foreach (object modObject in modsList)
         {
             ModWrapper modWrapper = new ModWrapper(modObject);
-            _allMods[modWrapper.ModName] = modWrapper;
+
+            if (!_allMods.ContainsKey(modWrapper.ModName))
+            {
+                _allMods[modWrapper.ModName] = modWrapper;
+            }
+            else
+            {
+                Debug.LogErrorFormat("***** A duplicate mod was found under the name {0}! *****", modWrapper.ModName);
+            }
         }
     }
 
@@ -441,6 +471,12 @@ public class ModSelectorService : MonoBehaviour
     private void SetupSaveProfileWindow()
     {
         SaveProfileWindow window = GetComponentInChildren<SaveProfileWindow>(true);
+        window.SetupService(this);
+    }
+
+    private void SetupDeleteProfileWindow()
+    {
+        DeleteProfileWindow window = GetComponentInChildren<DeleteProfileWindow>(true);
         window.SetupService(this);
     }
     #endregion
@@ -505,7 +541,7 @@ public class ModSelectorService : MonoBehaviour
 
     public void EnableAllMods(Type modType)
     {
-        foreach(ModWrapper modWrapper in _allMods.Values)
+        foreach (ModWrapper modWrapper in _allMods.Values)
         {
             modWrapper.EnableModObjects(modType);
         }
@@ -626,7 +662,7 @@ public class ModSelectorService : MonoBehaviour
 
     public void EnableAllServices()
     {
-        foreach(Service service in _allServices.Values)
+        foreach (Service service in _allServices.Values)
         {
             service.IsEnabled = true;
         }
@@ -661,7 +697,7 @@ public class ModSelectorService : MonoBehaviour
         {
             EnsureProfileDirectory();
             string[] files = Directory.GetFiles(ProfileDirectory);
-            foreach(string file in files)
+            foreach (string file in files)
             {
                 Debug.Log("[ModSelector] Profile found: " + file);
 
@@ -707,6 +743,12 @@ public class ModSelectorService : MonoBehaviour
         SaveDefaults();
     }
 
+    public void DeleteProfile(string profileName)
+    {
+        EnsureProfileDirectory();
+        DeleteConfigurationFromPath(Path.Combine(ProfileDirectory, string.Format("{0}.json", profileName)));
+    }
+
     public void SaveTemporaryProfile()
     {
         _tempFilename = Path.GetTempFileName();
@@ -731,7 +773,7 @@ public class ModSelectorService : MonoBehaviour
             {
                 if (DisableModule(disabledMod))
                 {
-                    continue;                    
+                    continue;
                 }
 
                 if (DisableService(disabledMod))
@@ -786,6 +828,20 @@ public class ModSelectorService : MonoBehaviour
         catch (FileNotFoundException ex)
         {
             Debug.LogWarningFormat("[ModSelector] File {0} was not found.", path);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+
+    public void DeleteConfigurationFromPath(string path)
+    {
+        try
+        {
+            Debug.Log("[ModSelector] Deleting configuration file: " + path);
+
+            File.Delete(path);
         }
         catch (Exception ex)
         {
