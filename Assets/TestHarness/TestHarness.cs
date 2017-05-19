@@ -12,6 +12,8 @@ public class TestHarness : MonoBehaviour
     AudioSource audioSource;
     List<AudioClip> audioClips;
 
+    public KMSelectable[] extraSelectables;
+
     void Awake()
     {
         AddHighlightables();
@@ -24,7 +26,7 @@ public class TestHarness : MonoBehaviour
 
         KMBombModule[] modules = FindObjectsOfType<KMBombModule>();
         KMNeedyModule[] needyModules = FindObjectsOfType<KMNeedyModule>();
-        currentSelectable.Children = new TestSelectable[modules.Length + needyModules.Length];
+        currentSelectable.Children = new TestSelectable[modules.Length + needyModules.Length + extraSelectables.Length];
         for (int i = 0; i < modules.Length; i++)
         {
             currentSelectable.Children[i] = modules[i].GetComponent<TestSelectable>();
@@ -49,6 +51,12 @@ public class TestHarness : MonoBehaviour
                 Debug.Log("Strike");
                 return false;
             };
+        }
+
+        for (int i = 0; i < extraSelectables.Length; i++)
+        {
+            currentSelectable.Children[modules.Length + needyModules.Length + i] = extraSelectables[i].GetComponent<TestSelectable>();
+            extraSelectables[i].GetComponent<TestSelectable>().Parent = currentSelectable;
         }
 
         currentSelectable.ActivateChildSelectableAreas();

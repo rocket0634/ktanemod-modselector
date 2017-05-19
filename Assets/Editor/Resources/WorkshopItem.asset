@@ -13,8 +13,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WorkshopPublishedFileID: 801400247
   Title: Mod Selector
-  Description: 'This mod adds some additional 2D-space UI to allow dynamic selection/veto
-    of all loaded mods. Deselecting mods will make them unavailable in Free Play mode
+  Description: 'This mod adds some additional UI to allow dynamic selection/veto of
+    all loaded mods. Deselecting mods will make them unavailable in Free Play mode
     and any missions that would normally require them.
 
 
@@ -37,10 +37,8 @@ MonoBehaviour:
     As of v1.2.0, this will allow deletion of existing profiles, and also provides
     a fix to prevent bad initialisation in the case of duplicate mods installed.
 
-
-    Thanks to:
-
-    Lumbud84 & samfun123 for the emoji artwork for the modules :)'
+    As of v2.0.0, the Mod Selector is now a world-space object, much like the bomb
+    binder, with dynamic profile merging and 2 modes of merging.'
   PreviewImage: {fileID: 2800000, guid: 3635e2c54a9c5ee4e9896ba11c4f5a43, type: 3}
   Tags:
   - Other

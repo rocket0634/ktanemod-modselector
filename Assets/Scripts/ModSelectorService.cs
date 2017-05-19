@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -12,13 +13,47 @@ public class ModSelectorService : MonoBehaviour
     #region Nested Types
     public sealed class ModWrapper
     {
+        static ModWrapper()
+        {
+            ModType = ReflectionHelper.FindType("Mod");
+            ModNameProperty = ModType.GetProperty("ModName", BindingFlags.Instance | BindingFlags.Public);
+            ModObjectsProperty = ModType.GetProperty("ModObjects", BindingFlags.Instance | BindingFlags.Public);
+
+            ModDirectoryField = ModType.GetField("modDirectory", BindingFlags.Instance | BindingFlags.NonPublic);
+
+            BombType = ReflectionHelper.FindType("ModBomb");
+            WidgetType = ReflectionHelper.FindType("ModWidget");
+            GameplayRoomType = ReflectionHelper.FindType("ModGameplayRoom");
+        }
+
         public ModWrapper(object modObject)
         {
             Debug.Log(modObject);
             ModObject = modObject;
 
             ModName = (string)ModNameProperty.GetValue(ModObject, null);
-            _activeModObjects = (List<GameObject>)ModObjectsProperty.GetValue(ModObject, null);
+            ModDirectory = (string)ModDirectoryField.GetValue(ModObject);
+            ModObjects = (List<GameObject>)ModObjectsProperty.GetValue(ModObject, null);
+
+            string modInfoText = File.ReadAllText(Path.Combine(ModDirectory, "modInfo.json"));
+            if (modInfoText != null)
+            {
+                Dictionary<string, object> modInfoDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(modInfoText);
+                ModTitle = (string)modInfoDictionary["title"];
+                if (ModTitle == null)
+                {
+                    ModTitle = ModName;
+                }
+
+                ModVersion = (string)modInfoDictionary["version"];
+            }
+            else
+            {
+                ModTitle = ModName;
+                ModVersion = null;
+            }
+
+            _activeModObjects = ModObjects;
             _inactiveModObjects = new List<GameObject>();
 
             Debug.LogFormat("[ModSelector] Found mod '{0}', which contains the following {1} mod object(s):", ModName, _activeModObjects.Count);
@@ -119,97 +154,24 @@ public class ModSelectorService : MonoBehaviour
             }
         }
 
+        public static readonly Type ModType = null;
+        public static readonly PropertyInfo ModNameProperty = null;
+        public static readonly PropertyInfo ModObjectsProperty = null;
+        public static readonly FieldInfo ModDirectoryField = null;
+
+        public static readonly Type BombType = null;
+        public static readonly Type WidgetType = null;
+        public static readonly Type GameplayRoomType = null;
+
         public readonly object ModObject;
         public readonly string ModName;
+        public readonly string ModTitle;
+        public readonly string ModVersion;
+        public readonly string ModDirectory;
+        public readonly List<GameObject> ModObjects;
 
         private readonly List<GameObject> _activeModObjects;
         private readonly List<GameObject> _inactiveModObjects;
-
-        private static Type _modType = null;
-        private static Type ModType
-        {
-            get
-            {
-                if (_modType == null)
-                {
-                    _modType = ReflectionHelper.FindType("Mod");
-                }
-
-                return _modType;
-            }
-        }
-
-        private static PropertyInfo _modNameProperty = null;
-        private static PropertyInfo ModNameProperty
-        {
-            get
-            {
-                if (_modNameProperty == null)
-                {
-                    _modNameProperty = ModType.GetProperty("ModName", BindingFlags.Instance | BindingFlags.Public);
-                }
-
-                return _modNameProperty;
-            }
-        }
-
-        private static PropertyInfo _modObjectsProperty = null;
-        private static PropertyInfo ModObjectsProperty
-        {
-            get
-            {
-                if (_modObjectsProperty == null)
-                {
-                    _modObjectsProperty = ModType.GetProperty("ModObjects", BindingFlags.Instance | BindingFlags.Public);
-                }
-
-                return _modObjectsProperty;
-            }
-        }
-
-        #region Mod Types
-        private static Type _bombType = null;
-        public static Type BombType
-        {
-            get
-            {
-                if (_bombType == null)
-                {
-                    _bombType = ReflectionHelper.FindType("ModBomb");
-                }
-
-                return _bombType;
-            }
-        }
-
-        private static Type _widgetType = null;
-        public static Type WidgetType
-        {
-            get
-            {
-                if (_widgetType == null)
-                {
-                    _widgetType = ReflectionHelper.FindType("ModWidget");
-                }
-
-                return _widgetType;
-            }
-        }
-
-        private static Type _gameplayRoomType = null;
-        public static Type GameplayRoomType
-        {
-            get
-            {
-                if (_gameplayRoomType == null)
-                {
-                    _gameplayRoomType = ReflectionHelper.FindType("ModGameplayRoom");
-                }
-
-                return _gameplayRoomType;
-            }
-        }
-        #endregion
     }
 
     public interface Module
@@ -310,11 +272,40 @@ public class ModSelectorService : MonoBehaviour
             }
         }
     }
+
+    public enum ModType
+    {
+        [Description("Solvable Modules")] 
+        SolvableModule,
+
+        [Description("Needy Modules")]
+        NeedyModule,
+
+        [Description("Bombs")]
+        Bomb,
+
+        [Description("Widgets")]
+        Widget,
+
+        [Description("Gameplay Rooms")]
+        GameplayRoom,
+
+        [Description("Services")]
+        Service,
+
+        [Description("Unknown")]
+        Unknown
+    }
     #endregion
 
     #region Unity Lifecycle
     private void Start()
     {
+        KMGameInfo gameInfo = GetComponent<KMGameInfo>();
+        gameInfo.OnStateChange += OnStateChange;
+
+        _instance = this;
+
         DontDestroyOnLoad(gameObject);
 
         //For modules
@@ -328,17 +319,28 @@ public class ModSelectorService : MonoBehaviour
         //For all other mod types
         GetModList();
 
-        LoadDefaults();
+        //Reload the active configuration
+        Profile.ReloadActiveConfiguration();
+    }
+    #endregion
 
-        PopulateModSelectorWindow();
-
-        SetupLoadProfileWindow();
-        SetupSaveProfileWindow();
-        SetupDeleteProfileWindow();
+    #region Events
+    public void OnStateChange(KMGameInfo.State state)
+    {
+        if (state == KMGameInfo.State.Setup)
+        {
+            StartCoroutine(InstanceHoldable());
+        }
     }
     #endregion
 
     #region Setup
+    private IEnumerator InstanceHoldable()
+    {
+        yield return new WaitForSeconds(0.1f);
+        Instantiate(holdableToInstance, holdableToInstance.spawnPosition, Quaternion.identity);
+    }
+
     private void GetSolvableModules()
     {
         _allSolvableModules = new Dictionary<string, SolvableModule>();
@@ -448,50 +450,138 @@ public class ModSelectorService : MonoBehaviour
             }
         }
     }
-
-    private void PopulateModSelectorWindow()
-    {
-        ModSelectorWindow window = GetComponentInChildren<ModSelectorWindow>(true);
-
-        window.SetupService(this);
-        window.SetupNormalModules(_allSolvableModules.Values.OrderBy((x) => x.SolvableBombModule.ModuleDisplayName));
-        window.SetupNeedyModules(_allNeedyModules.Values.OrderBy((x) => x.NeedyBombModule.ModuleDisplayName));
-        window.SetupServices(_allServices.Values.OrderBy((x) => x.ServiceName));
-        window.SetupMods(window.bombGrid, _allMods.Values, ModWrapper.BombType);
-        window.SetupMods(window.gameplayRoomGrid, _allMods.Values, ModWrapper.GameplayRoomType);
-        window.SetupMods(window.widgetGrid, _allMods.Values, ModWrapper.WidgetType);
-    }
-
-    private void SetupLoadProfileWindow()
-    {
-        LoadProfileWindow window = GetComponentInChildren<LoadProfileWindow>(true);
-        window.SetupService(this);
-    }
-
-    private void SetupSaveProfileWindow()
-    {
-        SaveProfileWindow window = GetComponentInChildren<SaveProfileWindow>(true);
-        window.SetupService(this);
-    }
-
-    private void SetupDeleteProfileWindow()
-    {
-        DeleteProfileWindow window = GetComponentInChildren<DeleteProfileWindow>(true);
-        window.SetupService(this);
-    }
     #endregion
 
     #region Actions
-    #region Mods
-    public bool IsModActive(Type modType, string modName, string modObjectName)
+    #region General
+    public ModType GetModType(string modObjectName)
     {
-        if (_allMods.ContainsKey(modName))
+        if (_allSolvableModules.Values.Any((x) => modObjectName.Equals(x.ModuleType)))
         {
-            return _allMods[modName].GetModObjects(modType).Where((x) => x.Key.name.Equals(modObjectName)).FirstOrDefault().Value;
+            return ModType.SolvableModule;
         }
 
-        Debug.LogErrorFormat("[ModSelector] Could not find a mod with name '{0}'.", modName);
-        return false;
+        if (_allNeedyModules.Values.Any((x) => modObjectName.Equals(x.ModuleType)))
+        {
+            return ModType.NeedyModule;
+        }
+
+        GameObject modObject = _allMods.Values.Select((x) => x.GetModObject(modObjectName)).FirstOrDefault((y) => y != null);
+        if (modObject != null)
+        {
+            if (modObject.GetComponent(ModWrapper.BombType) != null)
+            {
+                return ModType.Bomb;
+            }
+
+            if (modObject.GetComponent(ModWrapper.GameplayRoomType) != null)
+            {
+                return ModType.GameplayRoom;
+            }
+
+            if (modObject.GetComponent(ModWrapper.WidgetType) != null)
+            {
+                return ModType.Widget;
+            }
+        }
+
+        if (_allServices.Values.Any((x) => x.ServiceName.Equals(modObjectName)))
+        {
+            return ModType.Service;
+        }
+
+        return ModType.Unknown;
+    }
+
+    public IEnumerable<ModWrapper> GetModWrappers()
+    {
+        return _allMods.Values.OrderBy((x) => x.ModTitle);
+    }
+
+    public IEnumerable<string> GetModNames(ModType modType)
+    {
+        switch (modType)
+        {
+            case ModType.SolvableModule:
+                return _allSolvableModules.Values.Select((x) => x.ModuleType);
+
+            case ModType.NeedyModule:
+                return _allNeedyModules.Values.Select((x) => x.ModuleType);
+
+            case ModType.Bomb:
+                return _allMods.Values.SelectMany((x) => x.GetModObjects(ModWrapper.BombType)).Select((y) => y.Key.name);
+
+            case ModType.GameplayRoom:
+                return _allMods.Values.SelectMany((x) => x.GetModObjects(ModWrapper.GameplayRoomType)).Select((y) => y.Key.name);
+
+            case ModType.Widget:
+                return _allMods.Values.SelectMany((x) => x.GetModObjects(ModWrapper.WidgetType)).Select((y) => y.Key.name);
+
+            case ModType.Service:
+                return _allServices.Values.Select((x) => x.ServiceName);
+
+            default:
+                return null;
+        }
+    }
+
+    public void EnableAll()
+    {
+        EnableAllModules();
+        EnableAllMods();
+        EnableAllServices();
+    }
+
+    public bool Disable(string modObjectName)
+    {
+        switch (GetModType(modObjectName))
+        {
+            case ModType.SolvableModule:
+            case ModType.NeedyModule:
+                return DisableModule(modObjectName);
+
+            case ModType.Bomb:
+                return DisableMod(ModWrapper.BombType, modObjectName);
+
+            case ModType.GameplayRoom:
+                return DisableMod(ModWrapper.GameplayRoomType, modObjectName);
+
+            case ModType.Widget:
+                return DisableMod(ModWrapper.WidgetType, modObjectName);
+
+            case ModType.Service:
+                return DisableService(modObjectName);
+
+            default:
+                Debug.LogWarningFormat("Cannot disable mod object '{0}'; Could not deduce the mod classification of '{0}'.", modObjectName);
+                return false;
+        }
+    }
+    #endregion
+
+    #region Mods
+    public IEnumerable<GameObject> AllBombMods
+    {
+        get
+        {
+            return _allMods.Values.SelectMany((x) => x.GetModObjects(ModWrapper.BombType)).Select((y) => y.Key).OrderBy((z) => z.name);
+        }
+    }
+
+    public IEnumerable<GameObject> AllGameplayRoomMods
+    {
+        get
+        {
+            return _allMods.Values.SelectMany((x) => x.GetModObjects(ModWrapper.GameplayRoomType)).Select((y) => y.Key).OrderBy((z) => z.name);
+        }
+    }
+
+    public IEnumerable<GameObject> AllWidgetMods
+    {
+        get
+        {
+            return _allMods.Values.SelectMany((x) => x.GetModObjects(ModWrapper.WidgetType)).Select((y) => y.Key).OrderBy((z) => z.name);
+        }
     }
 
     public bool EnableMod(Type modType, string modName, string modObjectName)
@@ -546,7 +636,7 @@ public class ModSelectorService : MonoBehaviour
             modWrapper.EnableModObjects(modType);
         }
     }
-
+    
     public void DisableAllMods(Type modType)
     {
         foreach (ModWrapper modWrapper in _allMods.Values)
@@ -557,9 +647,20 @@ public class ModSelectorService : MonoBehaviour
     #endregion
 
     #region Modules
-    public bool IsModuleActive(string typeName)
+    public IEnumerable<SolvableModule> AllSolvableModules
     {
-        return _activeModules.Contains(typeName);
+        get
+        {
+            return _allSolvableModules.Select((x) => x.Value).OrderBy((y) => y.ModuleName);
+        }
+    }
+
+    public IEnumerable<NeedyModule> AllNeedyModules
+    {
+        get
+        {
+            return _allNeedyModules.Select((x) => x.Value).OrderBy((y) => y.ModuleName);
+        }
     }
 
     public bool EnableModule(string typeName)
@@ -628,14 +729,12 @@ public class ModSelectorService : MonoBehaviour
     #endregion
 
     #region Services
-    public bool IsServiceActive(string serviceName)
+    public IEnumerable<Service> AllServices
     {
-        if (_allServices.ContainsKey(serviceName))
+        get
         {
-            return _allServices[serviceName].IsEnabled;
+            return _allServices.Values.OrderBy((x) => x.ServiceName);
         }
-
-        return false;
     }
 
     public bool EnableService(string serviceName)
@@ -676,199 +775,21 @@ public class ModSelectorService : MonoBehaviour
         }
     }
     #endregion
-
-    #region File I/O
-    private string ProfileDirectory
-    {
-        get
-        {
-            return Path.Combine(Application.persistentDataPath, "ModProfiles");
-        }
-    }
-
-    private void EnsureProfileDirectory()
-    {
-        Directory.CreateDirectory(ProfileDirectory);
-    }
-
-    public IEnumerable<string> AvailableProfiles
-    {
-        get
-        {
-            EnsureProfileDirectory();
-            string[] files = Directory.GetFiles(ProfileDirectory);
-            foreach (string file in files)
-            {
-                Debug.Log("[ModSelector] Profile found: " + file);
-
-                string extension = Path.GetExtension(file);
-                if (!extension.Equals(".json"))
-                {
-                    continue;
-                }
-
-                yield return Path.GetFileNameWithoutExtension(file);
-            }
-        }
-    }
-
-    public void LoadDefaults()
-    {
-        LoadConfigurationFromFile(Path.Combine(Application.persistentDataPath, "disabledMods.json"));
-    }
-
-    public void SaveDefaults()
-    {
-        SaveConfigurationToFile(Path.Combine(Application.persistentDataPath, "disabledMods.json"));
-    }
-
-    public void LoadTemporary()
-    {
-        if (!string.IsNullOrEmpty(_tempFilename))
-        {
-            LoadConfigurationFromFile(_tempFilename);
-        }
-    }
-
-    public void LoadProfile(string profileName)
-    {
-        EnsureProfileDirectory();
-        LoadConfigurationFromFile(Path.Combine(ProfileDirectory, string.Format("{0}.json", profileName)));
-    }
-
-    public void SaveProfile(string profileName)
-    {
-        EnsureProfileDirectory();
-        SaveConfigurationToFile(Path.Combine(ProfileDirectory, string.Format("{0}.json", profileName)));
-        SaveDefaults();
-    }
-
-    public void DeleteProfile(string profileName)
-    {
-        EnsureProfileDirectory();
-        DeleteConfigurationFromPath(Path.Combine(ProfileDirectory, string.Format("{0}.json", profileName)));
-    }
-
-    public void SaveTemporaryProfile()
-    {
-        _tempFilename = Path.GetTempFileName();
-        SaveConfigurationToFile(_tempFilename);
-    }
-
-    public void LoadConfigurationFromFile(string path)
-    {
-        try
-        {
-            Debug.Log("[ModSelector] Loading configuration from file: " + path);
-
-            //Ensure all mods are enabled first
-            EnableAllModules();
-            EnableAllServices();
-            EnableAllMods();
-
-            string jsonInput = File.ReadAllText(path);
-
-            List<string> disabledMods = JsonConvert.DeserializeObject<List<string>>(jsonInput);
-            foreach (string disabledMod in disabledMods)
-            {
-                if (DisableModule(disabledMod))
-                {
-                    continue;
-                }
-
-                if (DisableService(disabledMod))
-                {
-                    continue;
-                }
-
-                if (DisableMod(ModWrapper.BombType, disabledMod))
-                {
-                    continue;
-                }
-
-                if (DisableMod(ModWrapper.GameplayRoomType, disabledMod))
-                {
-                    continue;
-                }
-
-                if (DisableMod(ModWrapper.WidgetType, disabledMod))
-                {
-                    continue;
-                }
-            }
-
-            SaveDefaults();
-        }
-        catch (FileNotFoundException ex)
-        {
-            Debug.LogWarningFormat("[ModSelector] File {0} was not found.", path);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogException(ex);
-        }
-    }
-
-    public void SaveConfigurationToFile(string path)
-    {
-        try
-        {
-            Debug.Log("[ModSelector] Saving configuration to file: " + path);
-
-            List<string> allDisabledMods = new List<string>();
-            allDisabledMods.AddRange(_disabledModules);
-            allDisabledMods.AddRange(_allServices.Values.Where((x) => !x.IsEnabled).Select((y) => y.ServiceName));
-            allDisabledMods.AddRange(_allMods.Values.SelectMany((x) => x.GetModObjects(ModWrapper.BombType)).Where((y) => y.Value == false).Select((z) => z.Key.name));
-            allDisabledMods.AddRange(_allMods.Values.SelectMany((x) => x.GetModObjects(ModWrapper.GameplayRoomType)).Where((y) => y.Value == false).Select((z) => z.Key.name));
-            allDisabledMods.AddRange(_allMods.Values.SelectMany((x) => x.GetModObjects(ModWrapper.WidgetType)).Where((y) => y.Value == false).Select((z) => z.Key.name));
-
-            string jsonOutput = JsonConvert.SerializeObject(allDisabledMods);
-            File.WriteAllText(path, jsonOutput);
-        }
-        catch (FileNotFoundException ex)
-        {
-            Debug.LogWarningFormat("[ModSelector] File {0} was not found.", path);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogException(ex);
-        }
-    }
-
-    public void DeleteConfigurationFromPath(string path)
-    {
-        try
-        {
-            Debug.Log("[ModSelector] Deleting configuration file: " + path);
-
-            File.Delete(path);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogException(ex);
-        }
-    }
-    #endregion
-
-    #region Emoji Prettiness
-    public Sprite GetEmojiSprite(string moduleID)
-    {
-        for (int emojiIndex = 0; emojiIndex < emojiIDs.Length; ++emojiIndex)
-        {
-            if (emojiIDs[emojiIndex].Equals(moduleID))
-            {
-                return emojiSprites[emojiIndex];
-            }
-        }
-
-        return null;
-    }
-    #endregion
     #endregion
 
     #region Public Fields
-    public string[] emojiIDs = null;
-    public Sprite[] emojiSprites = null;
+    public KMHoldable holdableToInstance = null;
+    #endregion
+
+    #region Public Properties
+    private static ModSelectorService _instance = null;
+    public static ModSelectorService Instance
+    {
+        get
+        {
+            return _instance;
+        }
+    }
     #endregion
 
     #region Private Fields & Properties
@@ -906,7 +827,5 @@ public class ModSelectorService : MonoBehaviour
         }
     }
     #endregion
-
-    private string _tempFilename = null;
     #endregion
 }
