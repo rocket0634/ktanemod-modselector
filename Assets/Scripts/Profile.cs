@@ -252,6 +252,11 @@ public class Profile
     {
         DisabledList = DisabledList.Except(ModSelectorService.Instance.GetModNames(modType)).ToList();
         UpdateProfileSelection();
+        
+        if (save)
+        {
+            Save();
+        }
     }
 
     public void DisableAllOfType(ModSelectorService.ModType modType, bool save = true)
