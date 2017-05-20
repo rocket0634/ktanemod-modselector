@@ -35,19 +35,27 @@ public class ModSelectorService : MonoBehaviour
             ModDirectory = (string)ModDirectoryField.GetValue(ModObject);
             ModObjects = (List<GameObject>)ModObjectsProperty.GetValue(ModObject, null);
 
-            string modInfoText = File.ReadAllText(Path.Combine(ModDirectory, "modInfo.json"));
-            if (modInfoText != null)
+            try
             {
-                Dictionary<string, object> modInfoDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(modInfoText);
-                ModTitle = (string)modInfoDictionary["title"];
-                if (ModTitle == null)
+                string modInfoText = File.ReadAllText(Path.Combine(ModDirectory, "modInfo.json"));
+                if (modInfoText != null)
+                {
+                    Dictionary<string, object> modInfoDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(modInfoText);
+                    ModTitle = (string)modInfoDictionary["title"];
+                    if (ModTitle == null)
+                    {
+                        ModTitle = ModName;
+                    }
+
+                    ModVersion = (string)modInfoDictionary["version"];
+                }
+                else
                 {
                     ModTitle = ModName;
+                    ModVersion = null;
                 }
-
-                ModVersion = (string)modInfoDictionary["version"];
             }
-            else
+            catch (Exception ex)
             {
                 ModTitle = ModName;
                 ModVersion = null;
