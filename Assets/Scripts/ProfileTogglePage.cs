@@ -73,7 +73,7 @@ public class ProfileTogglePage : MonoBehaviour
 
     private void OnEnable()
     {
-        _availableProfiles = Profile.AvailableProfiles.OrderBy((x) => x.Key).Select((y) => y.Value).ToArray();
+        _availableProfiles = Profile.AvailableProfiles.OrderBy((x) => x.Value.Operation).ThenBy((y) => y.Key).Select((z) => z.Value).ToArray();
 
         SetPage(0);
     }
@@ -95,10 +95,13 @@ public class ProfileTogglePage : MonoBehaviour
 
             if (trueToggleIndex < _availableProfiles.Length)
             {
+                Profile profile = _availableProfiles[trueToggleIndex];
+
                 toggle.transform.parent.gameObject.SetActive(true);
-                toggle.toggleState = Profile.ActiveProfiles.Contains(_availableProfiles[trueToggleIndex]);
+                toggle.toggleState = Profile.ActiveProfiles.Contains(profile);
 
                 TabletSelectable tabletSelectable = toggle.GetComponent<TabletSelectable>();
+                tabletSelectable.deselectedColor = profile.Operation.GetColor();
 
                 if (tabletSelectable.textMesh != null)
                 {                   
@@ -111,7 +114,7 @@ public class ProfileTogglePage : MonoBehaviour
             }
         }
 
-        _tabletPage.header.text = string.Format("<b>Select Profiles</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
+        _tabletPage.header.text = string.Format("<b>Select Active Profiles</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
     }
 
     public void NextPage()

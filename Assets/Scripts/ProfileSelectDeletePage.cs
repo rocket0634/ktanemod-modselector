@@ -63,7 +63,7 @@ public class ProfileSelectDeletePage : MonoBehaviour
 
     private void OnEnable()
     {
-        _availableProfiles = Profile.AvailableProfiles.OrderBy((x) => x.Key).Select((y) => y.Value).ToArray();
+        _availableProfiles = Profile.AvailableProfiles.OrderBy((x) => x.Value.Operation).ThenBy((y) => y.Key).Select((z) => z.Value).ToArray();
 
         SetPage(0);
     }
@@ -85,9 +85,12 @@ public class ProfileSelectDeletePage : MonoBehaviour
             {
                 _options[optionIndex].transform.parent.gameObject.SetActive(true);
 
+                Profile profile = _availableProfiles[trueOptionIndex];
+                _options[optionIndex].deselectedColor = profile.Operation.GetColor();
+
                 if (_options[optionIndex].textMesh != null)
                 {
-                    _options[optionIndex].textMesh.text = _availableProfiles[trueOptionIndex].Name;
+                    _options[optionIndex].textMesh.text = profile.Name;
                 }
             }
             else
@@ -96,7 +99,7 @@ public class ProfileSelectDeletePage : MonoBehaviour
             }
         }
 
-        _tabletPage.header.text = string.Format("<b>Delete Profile</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
+        _tabletPage.header.text = string.Format("<b>Select Profile To Delete...</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
     }
 
     public void NextPage()

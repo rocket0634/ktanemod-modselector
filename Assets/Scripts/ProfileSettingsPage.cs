@@ -64,6 +64,7 @@ public class ProfileSettingsPage : MonoBehaviour
         if (setOperationSelectable.textMesh != null)
         {
             setOperationSelectable.textMesh.text = GetSetOperationString();
+            setOperationSelectable.deselectedColor = profile != null ? profile.Operation.GetColor() : Color.white;
         }
     }
 
@@ -129,6 +130,8 @@ public class ProfileSettingsPage : MonoBehaviour
             default:
                 break;
         }
+
+        setOperationSelectable.deselectedColor = profile.Operation.GetColor();
 
         if (setOperationSelectable.textMesh != null)
         {

@@ -9,7 +9,9 @@ public class Profile
 {
     public enum SetOperation
     {
+        [ColorAttribute(1.0f, 0.95f, 0.85f, 1.0f)]
         Intersect,
+        [ColorAttribute(0.9f, 1.0f, 0.85f, 1.0f)]
         Union
     }
 
