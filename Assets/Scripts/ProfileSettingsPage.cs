@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
@@ -68,11 +68,17 @@ public class ProfileSettingsPage : MonoBehaviour
         }
     }
 
+    void SortModulesNames(KeyValuePair<string, string>[] names)
+    {
+        System.Array.Sort(names, (x, y) => string.Compare(x.Value.Replace("The ", ""), y.Value.Replace("The ", "")));
+    }
+
     public void EditSolvableModules()
     {
         togglePage.profile = profile;
         togglePage.modType = ModSelectorService.ModType.SolvableModule;
         togglePage.entries = ModSelectorService.Instance.AllSolvableModules.Select((x) => new KeyValuePair<string, string>(x.ModuleType, x.ModuleName)).ToArray();
+        SortModulesNames(togglePage.entries);
         togglePage.SetPage(0);
     }
 
@@ -81,6 +87,7 @@ public class ProfileSettingsPage : MonoBehaviour
         togglePage.profile = profile;
         togglePage.modType = ModSelectorService.ModType.NeedyModule;
         togglePage.entries = ModSelectorService.Instance.AllNeedyModules.Select((x) => new KeyValuePair<string, string>(x.ModuleType, x.ModuleName)).ToArray();
+        SortModulesNames(togglePage.entries);
         togglePage.SetPage(0);
     }
 
