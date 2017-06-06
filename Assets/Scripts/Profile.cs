@@ -43,10 +43,11 @@ public class Profile
     }
 
     #region Constants/Readonly
+    public static readonly string ProfileDirectory = Path.Combine(Application.persistentDataPath, "ModProfiles");
+
     private static readonly string Extension = ".json";
     private static readonly string DefaultPath = Path.Combine(Application.persistentDataPath, "disabledMods.json");
     private static readonly string ActiveConfiguration = Path.Combine(Application.persistentDataPath, "modSelectorConfig.json");
-    private static readonly string ProfileDirectory = Path.Combine(Application.persistentDataPath, "ModProfiles");
     #endregion
 
     #region Public Fields/Properties
