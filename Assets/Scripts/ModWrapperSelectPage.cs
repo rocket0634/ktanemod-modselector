@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(TabletPage))]
@@ -69,6 +69,8 @@ public class ModWrapperSelectPage : MonoBehaviour
         }
 
         _modWrappers = ModSelectorService.Instance.GetModWrappers().ToArray();
+        System.Array.Sort(_modWrappers, (x, y) => string.Compare(x.ModTitle.Replace("The ", ""), y.ModTitle.Replace("The ", "")));
+
         SetPage(0);
     }
 
