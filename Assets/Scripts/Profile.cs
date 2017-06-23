@@ -150,7 +150,7 @@ public class Profile
             profileMergeSet.UnionWith(intersects[0].DisabledList);
             for (int intersectProfileIndex = 1; intersectProfileIndex < intersects.Length; ++intersectProfileIndex)
             {
-                profileMergeSet.IntersectWith(intersects[1].DisabledList);
+                profileMergeSet.IntersectWith(intersects[intersectProfileIndex].DisabledList);
             }
         }
 
