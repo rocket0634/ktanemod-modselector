@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public class ProfileNewPage : MonoBehaviour
@@ -10,6 +11,8 @@ public class ProfileNewPage : MonoBehaviour
     public ProfileSettingsPage profileSettingsPage = null;
 
     private bool _capsOn = false;
+
+    private static readonly char[] INVALID_CHARACTERS = Path.GetInvalidFileNameChars();
 
     private void OnEnable()
     {
@@ -26,17 +29,29 @@ public class ProfileNewPage : MonoBehaviour
     {
         foreach (char c in Input.inputString)
         {
-            if ((c >= 'A' && c <= 'Z') ||
-                (c >= 'a' && c <= 'z') ||
-                (c >= '0' && c <= '9') ||
-                c == ' ')
-            {
-                newNameText.text += c.ToString();
-            }
-            else if (c == '\b')
+            if (c == '\b')
             {
                 DeleteCharacter();
             }
+            else if (!INVALID_CHARACTERS.Contains(c))
+            {
+                newNameText.text += c.ToString();
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.CapsLock))
+        {
+            ToogleCaps();
+        }
+        else if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
+        {
+            _capsOn = true;
+            UpdateLetters();
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.RightShift))
+        {
+            _capsOn = false;
+            UpdateLetters();
         }
     }
 
