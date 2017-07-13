@@ -61,7 +61,7 @@ public class TabletSelectable : MonoBehaviour
         return drillOnInteract;
     }
 
-    private void OnInteractEnded()
+    protected virtual void OnInteractEnded()
     {
         if (onInteract != null)
         {

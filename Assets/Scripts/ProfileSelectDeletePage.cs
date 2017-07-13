@@ -6,6 +6,9 @@ public class ProfileSelectDeletePage : MonoBehaviour
 {
     public ProfileConfirmDeletePage confirmDeletePage = null;
 
+    public TabletSelectableDisableable previousButton = null;
+    public TabletSelectableDisableable nextButton = null;
+
     private int TotalPageCount
     {
         get
@@ -100,6 +103,9 @@ public class ProfileSelectDeletePage : MonoBehaviour
         }
 
         _tabletPage.header.text = string.Format("<b>Select Profile To Delete...</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
+
+        previousButton.SetEnable(PreviousEnabled);
+        nextButton.SetEnable(NextEnabled);
     }
 
     public void NextPage()

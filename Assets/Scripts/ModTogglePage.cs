@@ -9,6 +9,9 @@ public class ModTogglePage : MonoBehaviour
     public ModSelectorService.ModType modType = ModSelectorService.ModType.Unknown;
     public KeyValuePair<string, string>[] entries = null;
 
+    public TabletSelectableDisableable previousButton = null;
+    public TabletSelectableDisableable nextButton = null;
+
     private int TotalPageCount
     {
         get
@@ -113,6 +116,9 @@ public class ModTogglePage : MonoBehaviour
         {
             _tabletPage.header.text = string.Format("<b>{0}</b>\n<size=16>{1}, page {2} of {3}</size>", profile.Name, modType.GetAttributeOfType<DescriptionAttribute>().Description, _pageIndex + 1, TotalPageCount);
         }
+
+        previousButton.SetEnable(PreviousEnabled);
+        nextButton.SetEnable(NextEnabled);
     }
 
     public void EnableAll()
