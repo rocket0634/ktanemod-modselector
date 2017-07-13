@@ -31,6 +31,9 @@ public class TabletSelectableDisableable : MonoBehaviour
             image.material = material;
         }
 
-        _selectable.enabled = enabled;
+        if (_selectable != null)
+        {
+            _selectable.enabled = enabled;
+        }
     }
 }

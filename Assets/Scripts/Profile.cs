@@ -258,7 +258,11 @@ public class Profile
 
             foreach (string profileName in activeProfileNames)
             {
-                ActiveProfiles.Add(AvailableProfiles[profileName]);
+                Profile profile;
+                if (AvailableProfiles.TryGetValue(profileName, out profile))
+                {
+                    ActiveProfiles.Add(profile);
+                }
             }
 
             UpdateProfileSelection();

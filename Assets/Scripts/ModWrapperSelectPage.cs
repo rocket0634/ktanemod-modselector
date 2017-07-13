@@ -107,8 +107,15 @@ public class ModWrapperSelectPage : MonoBehaviour
 
         _tabletPage.header.text = string.Format("<b>Select Mod</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
 
-        previousButton.SetEnable(PreviousEnabled);
-        nextButton.SetEnable(NextEnabled);
+        if (previousButton != null)
+        {
+            previousButton.SetEnable(PreviousEnabled);
+        }
+
+        if (nextButton != null)
+        {
+            nextButton.SetEnable(NextEnabled);
+        }
     }
 
     public void NextPage()
