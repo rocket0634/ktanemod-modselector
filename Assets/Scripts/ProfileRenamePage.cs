@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -10,8 +11,29 @@ public class ProfileRenamePage : MonoBehaviour
     public TextMesh[] toggleableLetters = null;
     public TabletPage returnPage = null;
 
+    private string Filename
+    {
+        get
+        {
+            return newNameText.text.Substring(0, newNameText.text.Length - 1);
+        }
+    }
+
+    private char Caret
+    {
+        get
+        {
+            return newNameText.text[newNameText.text.Length - 1];
+        }
+        set
+        {
+            newNameText.text = string.Format("{0}{1}", Filename, value);
+        }
+    }
+
     private TabletPage _tabletPage = null;
     private bool _capsOn = false;
+    private Coroutine _caretFlashCoroutine = null;
 
     private static readonly char[] INVALID_CHARACTERS = Path.GetInvalidFileNameChars();
 
@@ -29,11 +51,23 @@ public class ProfileRenamePage : MonoBehaviour
 
         if (newNameText != null)
         {
-            newNameText.text = profile == null ? "NULL" : profile.FriendlyName;
+            newNameText.text = profile == null ? "NULL " : (profile.FriendlyName + " ");
         }
 
         _capsOn = true;
         UpdateLetters();
+
+
+        _caretFlashCoroutine = StartCoroutine(CaretFlash());
+    }
+
+    private void OnDisable()
+    {
+        if (_caretFlashCoroutine != null)
+        {
+            StopCoroutine(_caretFlashCoroutine);
+            _caretFlashCoroutine = null;
+        }
     }
 
     private void Update()
@@ -46,7 +80,7 @@ public class ProfileRenamePage : MonoBehaviour
             }
             else if (!INVALID_CHARACTERS.Contains(c))
             {
-                newNameText.text += c.ToString();
+                AddCharacterNoModify(c.ToString());
             } 
         }
 
@@ -66,15 +100,38 @@ public class ProfileRenamePage : MonoBehaviour
         }
     }
 
+    private IEnumerator CaretFlash()
+    {
+        while (true)
+        {
+            Caret = ' ';
+            yield return new WaitForSeconds(0.4f);
+
+            Caret = '|';
+            yield return new WaitForSeconds(0.4f);
+        }
+    }
+
     public void ToogleCaps()
     {
         _capsOn = !_capsOn;
         UpdateLetters();
     }
 
+    public void AddCharacterNoModify(string text)
+    {
+        newNameText.text = Filename + text + Caret;
+
+        if (_capsOn)
+        {
+            _capsOn = false;
+            UpdateLetters();
+        }
+    }
+
     public void AddCharacter(string text)
     {
-        newNameText.text += _capsOn ? text.ToUpper() : text.ToLower();
+        newNameText.text += Filename + (_capsOn ? text.ToUpper() : text.ToLower()) + Caret;
 
         if (_capsOn)
         {
@@ -85,12 +142,12 @@ public class ProfileRenamePage : MonoBehaviour
 
     public void DeleteCharacter()
     {
-        if (newNameText.text.Length == 0)
+        if (newNameText.text.Length == 1)
         {
             return;
         }
 
-        newNameText.text = newNameText.text.Substring(0, newNameText.text.Length - 1);
+        newNameText.text = Filename.Substring(0, Filename.Length - 1) + Caret;
 
         if (_capsOn)
         {
@@ -101,12 +158,12 @@ public class ProfileRenamePage : MonoBehaviour
 
     public void Apply()
     {
-        if (string.IsNullOrEmpty(newNameText.text) || !Profile.CanCreateProfile(newNameText.text))
+        if (string.IsNullOrEmpty(Filename) || !Profile.CanCreateProfile(Filename))
         {            
             return;
         }
 
-        profile.Rename(newNameText.text);
+        profile.Rename(Filename);
         InputHelper.InvokeCancel();
     }
 
