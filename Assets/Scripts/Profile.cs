@@ -24,7 +24,71 @@ public class Profile
 
     static Profile()
     {
-        RefreshFiles();
+        RefreshFiles(false);
+
+        _profilesDirectoryWatcher = new FileSystemWatcher();
+        _profilesDirectoryWatcher.Path = ProfileDirectory;
+        _profilesDirectoryWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+        _profilesDirectoryWatcher.Filter = "*.*";
+
+        _profilesDirectoryWatcher.Created += OnFileCreated;
+        _profilesDirectoryWatcher.Changed += OnFileChanged;
+        _profilesDirectoryWatcher.Deleted += OnFileDeleted;
+        _profilesDirectoryWatcher.Renamed += OnFileRenamed;
+
+        _profilesDirectoryWatcher.EnableRaisingEvents = true;
+    }
+
+    private static void OnFileCreated(object sender, FileSystemEventArgs e)
+    {
+        string extension = Path.GetExtension(e.FullPath);
+        if (!extension.Equals(Extension))
+        {
+            return;
+        }
+
+        string profileName = Path.GetFileNameWithoutExtension(e.FullPath);
+        if (!AvailableProfiles.ContainsKey(profileName))
+        {
+            AvailableProfiles[profileName] = new Profile(e.FullPath);
+        }
+
+        ReloadActiveConfiguration();
+    }
+
+    private static void OnFileChanged(object sender, FileSystemEventArgs e)
+    {
+        string profileName = Path.GetFileNameWithoutExtension(e.FullPath);
+
+        Profile profile = null;
+        if (AvailableProfiles.TryGetValue(profileName, out profile))
+        {
+            profile.Reload();
+        }
+
+        ReloadActiveConfiguration();
+    }
+
+    private static void OnFileDeleted(object sender, FileSystemEventArgs e)
+    {
+        string profileName = Path.GetFileNameWithoutExtension(e.FullPath);
+        AvailableProfiles.Remove(profileName);
+
+        ReloadActiveConfiguration();
+    }
+
+    private static void OnFileRenamed(object sender, RenamedEventArgs e)
+    {
+        string oldProfileName = Path.GetFileNameWithoutExtension(e.FullPath);
+        AvailableProfiles.Remove(oldProfileName);
+
+        string profileName = Path.GetFileNameWithoutExtension(e.FullPath);
+        if (!AvailableProfiles.ContainsKey(profileName))
+        {
+            AvailableProfiles[profileName] = new Profile(e.FullPath);
+        }
+
+        ReloadActiveConfiguration();
     }
 
     private Profile(string filename, bool createNew = false)
@@ -90,6 +154,10 @@ public class Profile
     }
     #endregion
 
+    #region Private Fields
+    static FileSystemWatcher _profilesDirectoryWatcher = null;
+    #endregion
+
     #region Public Methods
     public static bool CanCreateProfile(string profileName)
     {
@@ -104,7 +172,7 @@ public class Profile
         return new Profile(string.Format("{0}{1}", profileName, Extension), true);
     }
 
-    public static void RefreshFiles()
+    public static void RefreshFiles(bool andReloadActiveConfiguration = true)
     {
         EnsureProfileDirectory();
 
@@ -127,9 +195,9 @@ public class Profile
             {
                 AvailableProfiles[profileName] = new Profile(file);
             }
-
-            Path.GetFileNameWithoutExtension(file);
         }
+
+        ReloadActiveConfiguration();
     }
 
     public static void UpdateProfileSelection(bool andSave = false)
