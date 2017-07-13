@@ -93,7 +93,7 @@ public class ProfileSelectPage : MonoBehaviour
 
                 if (_options[optionIndex].textMesh != null)
                 {
-                    _options[optionIndex].textMesh.text = profile.Name;
+                    _options[optionIndex].textMesh.text = profile.FriendlyName;
                 }
             }
             else

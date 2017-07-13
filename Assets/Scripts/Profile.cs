@@ -127,6 +127,15 @@ public class Profile
         }
     }
 
+    public string FriendlyName
+    {
+        get
+        {
+            //Currently only replaces underscores with spaces
+            return Name.Replace('_', ' ');
+        }
+    }
+
     public string Filename
     {
         get;

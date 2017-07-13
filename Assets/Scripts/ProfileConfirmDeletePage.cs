@@ -18,12 +18,12 @@ public class ProfileConfirmDeletePage : MonoBehaviour
     {
         if (_tabletPage != null && _tabletPage.header != null)
         {
-            _tabletPage.header.text = string.Format("<b>{0}</b>\n<size=16>Confirm Delete Profile</size>", profile == null ? "**NULL**" : profile.Name);
+            _tabletPage.header.text = string.Format("<b>{0}</b>\n<size=16>Confirm Delete Profile</size>", profile == null ? "**NULL**" : profile.FriendlyName);
         }
 
         if (messageText != null)
         {
-            messageText.text = string.Format("Delete <b>{0}</b>?", profile == null ? "NULL" : profile.Name);
+            messageText.text = string.Format("Delete <b>{0}</b>?", profile == null ? "NULL" : profile.FriendlyName);
         }
     }
 

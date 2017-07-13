@@ -20,12 +20,12 @@ public class ProfileRenamePage : MonoBehaviour
     {
         if (_tabletPage != null && _tabletPage.header != null)
         {
-            _tabletPage.header.text = string.Format("<b>{0}</b>\n<size=16>Rename Profile</size>", profile == null ? "**NULL**" : profile.Name);
+            _tabletPage.header.text = string.Format("<b>{0}</b>\n<size=16>Rename Profile</size>", profile == null ? "**NULL**" : profile.FriendlyName);
         }
 
         if (newNameText != null)
         {
-            newNameText.text = profile == null ? "NULL" : profile.Name;
+            newNameText.text = profile == null ? "NULL" : profile.FriendlyName;
         }
 
         _capsOn = true;

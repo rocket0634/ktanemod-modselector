@@ -114,7 +114,7 @@ public class ModTogglePage : MonoBehaviour
 
         if (_tabletPage != null)
         {
-            _tabletPage.header.text = string.Format("<b>{0}</b>\n<size=16>{1}, page {2} of {3}</size>", profile.Name, modType.GetAttributeOfType<DescriptionAttribute>().Description, _pageIndex + 1, TotalPageCount);
+            _tabletPage.header.text = string.Format("<b>{0}</b>\n<size=16>{1}, page {2} of {3}</size>", profile.FriendlyName, modType.GetAttributeOfType<DescriptionAttribute>().Description, _pageIndex + 1, TotalPageCount);
         }
 
         previousButton.SetEnable(PreviousEnabled);

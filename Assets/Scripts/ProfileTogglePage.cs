@@ -108,7 +108,7 @@ public class ProfileTogglePage : MonoBehaviour
 
                 if (tabletSelectable.textMesh != null)
                 {                   
-                    tabletSelectable.textMesh.text = _availableProfiles[trueToggleIndex].Name;
+                    tabletSelectable.textMesh.text = _availableProfiles[trueToggleIndex].FriendlyName;
                 }
             }
             else

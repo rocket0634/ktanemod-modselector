@@ -28,7 +28,7 @@ public class ProfileSettingsPage : MonoBehaviour
     {
         if (_tabletPage != null && _tabletPage.header != null)
         {
-            _tabletPage.header.text = string.Format("<b>{0}</b>\n<size=16>Profile Settings</size>", profile == null ? "**NULL**" : profile.Name);
+            _tabletPage.header.text = string.Format("<b>{0}</b>\n<size=16>Profile Settings</size>", profile == null ? "**NULL**" : profile.FriendlyName);
         }
 
         if (regularModulesSelectable.textMesh != null)
