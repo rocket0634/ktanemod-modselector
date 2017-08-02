@@ -26336,7 +26336,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1000014134873738
 GameObject:
   m_ObjectHideFlags: 1
@@ -88019,8 +88019,8 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010167995282}
-  m_Text: "<b>Title</b>:\tMod Title\n<b>ID</b>:\tMod Info\n<b>Version</b>:\tv1.0.0\n<b>Path</b>:\t<size=24>C:/My/Path</size>\n\n<b>Included
-    Mods</b>:\n"
+  m_Text: "<b>Title</b>:\tMod Title\n<b>ID</b>:\tMod Info\n<b>Version</b>:\tv1.0.0\n<b>Path</b>:\t<size=24>C:/My/Path</size>\n\n<b>Mod
+    Prefab Objects</b>:\n\n<b>Module IDs</b>:"
   m_OffsetZ: 0
   m_CharacterSize: 1
   m_LineSpacing: 1.3
