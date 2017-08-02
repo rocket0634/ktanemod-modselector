@@ -217,6 +217,11 @@ public class Profile
 
         if (ActiveProfiles.Count == 0)
         {
+            if (andSave)
+            {
+                SaveActiveConfiguration();
+            }
+
             return;
         }
 
