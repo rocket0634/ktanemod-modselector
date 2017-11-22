@@ -311,12 +311,46 @@ public class ModSelectorService : MonoBehaviour
     #endregion
 
     #region Unity Lifecycle
+    private void Awake()
+    {
+        KMGameInfo gameInfo = GetComponent<KMGameInfo>();
+        gameInfo.OnStateChange += OnStateChange;
+    }
+
     private void Start()
     {
         _instance = this;
 
         DontDestroyOnLoad(gameObject);
+    }
+    #endregion
 
+    #region Setup
+    private void OnStateChange(KMGameInfo.State state)
+    {
+        //TODO: Only do this coming back from a 'mod load' (there currently isn't a state on the KMGameInfo side for going into the ModManager scene)
+        if (state == KMGameInfo.State.Setup)
+        {
+            //Update the mod info
+            ClearModInfo();
+            SetupModInfo();
+
+            //Reload the active configuration
+            Profile.ReloadActiveConfiguration();
+        }
+    }
+
+    private void ClearModInfo()
+    {
+        _allSolvableModules.Clear();
+        _allNeedyModules.Clear();
+        _activeModules.Clear();
+        _allServices.Clear();
+        _allMods.Clear();
+    }
+
+    private void SetupModInfo()
+    {
         //For modules
         GetSolvableModules();
         GetNeedyModules();
@@ -327,17 +361,10 @@ public class ModSelectorService : MonoBehaviour
 
         //For all other mod types
         GetModList();
-
-        //Reload the active configuration
-        Profile.ReloadActiveConfiguration();
     }
-    #endregion
 
-    #region Setup
     private void GetSolvableModules()
     {
-        _allSolvableModules = new Dictionary<string, SolvableModule>();
-
         UnityEngine.Object modManager = ModManager;
 
         MethodInfo getSolvableBombModulesMethod = _modManagerType.GetMethod("GetSolvableBombModules", BindingFlags.Instance | BindingFlags.Public);
@@ -364,8 +391,6 @@ public class ModSelectorService : MonoBehaviour
 
     private void GetNeedyModules()
     {
-        _allNeedyModules = new Dictionary<string, NeedyModule>();
-
         UnityEngine.Object modManager = ModManager;
 
         MethodInfo getNeedyModulesMethod = _modManagerType.GetMethod("GetNeedyModules", BindingFlags.Instance | BindingFlags.Public);
@@ -770,10 +795,6 @@ public class ModSelectorService : MonoBehaviour
     #endregion
     #endregion
 
-    #region Public Fields
-    public KMHoldable holdableToInstance = null;
-    #endregion
-
     #region Public Properties
     private static ModSelectorService _instance = null;
     public static ModSelectorService Instance
@@ -791,10 +812,10 @@ public class ModSelectorService : MonoBehaviour
     #endregion
 
     #region Modules
-    private Dictionary<string, SolvableModule> _allSolvableModules = null;
-    private Dictionary<string, NeedyModule> _allNeedyModules = null;
+    private Dictionary<string, SolvableModule> _allSolvableModules = new Dictionary<string, SolvableModule>();
+    private Dictionary<string, NeedyModule> _allNeedyModules = new Dictionary<string, NeedyModule>();
 
-    private IDictionary _activeModules = null;
+    private IDictionary _activeModules = new Dictionary<string, object>();
     private List<string> _disabledModules = new List<string>();
     #endregion
 
