@@ -342,9 +342,13 @@ public class ModSelectorService : MonoBehaviour
 
     private void ClearModInfo()
     {
+        //Ensure to re-enable everything back first!
+        EnableAll();
+        _activeModules = null;
+
         _allSolvableModules.Clear();
         _allNeedyModules.Clear();
-        _activeModules.Clear();
+
         _allServices.Clear();
         _allMods.Clear();
     }
