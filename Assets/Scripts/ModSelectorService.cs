@@ -309,9 +309,6 @@ public class ModSelectorService : MonoBehaviour
     #region Unity Lifecycle
     private void Start()
     {
-        KMGameInfo gameInfo = GetComponent<KMGameInfo>();
-        gameInfo.OnStateChange += OnStateChange;
-
         _instance = this;
 
         DontDestroyOnLoad(gameObject);
@@ -332,23 +329,7 @@ public class ModSelectorService : MonoBehaviour
     }
     #endregion
 
-    #region Events
-    public void OnStateChange(KMGameInfo.State state)
-    {
-        if (state == KMGameInfo.State.Setup)
-        {
-            StartCoroutine(InstanceHoldable());
-        }
-    }
-    #endregion
-
     #region Setup
-    private IEnumerator InstanceHoldable()
-    {
-        yield return new WaitForSeconds(0.1f);
-        Instantiate(holdableToInstance, holdableToInstance.spawnPosition, Quaternion.identity);
-    }
-
     private void GetSolvableModules()
     {
         _allSolvableModules = new Dictionary<string, SolvableModule>();
