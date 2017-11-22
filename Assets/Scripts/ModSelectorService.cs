@@ -323,20 +323,31 @@ public class ModSelectorService : MonoBehaviour
 
         DontDestroyOnLoad(gameObject);
     }
+
+    private void Update()
+    {
+        if (!_updateRequired && SceneManagerWatcher.CurrentState == SceneManagerWatcher.State.ModManager)
+        {
+            //Clear out the mod info, in preparation for new info when coming back from the mod manager
+            ClearModInfo();
+
+            _updateRequired = true;
+        }
+    }
     #endregion
 
     #region Setup
     private void OnStateChange(KMGameInfo.State state)
     {
-        //TODO: Only do this coming back from a 'mod load' (there currently isn't a state on the KMGameInfo side for going into the ModManager scene)
-        if (state == KMGameInfo.State.Setup)
+        if (_updateRequired && state == KMGameInfo.State.Setup)
         {
             //Update the mod info
-            ClearModInfo();
             SetupModInfo();
 
             //Reload the active configuration
             Profile.ReloadActiveConfiguration();
+
+            _updateRequired = false;
         }
     }
 
@@ -845,5 +856,7 @@ public class ModSelectorService : MonoBehaviour
         }
     }
     #endregion
+
+    private bool _updateRequired = true;
     #endregion
 }
