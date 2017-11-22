@@ -16,10 +16,11 @@ public class ModSelectorService : MonoBehaviour
         static ModWrapper()
         {
             ModType = ReflectionHelper.FindType("Mod");
-            ModNameProperty = ModType.GetProperty("ModName", BindingFlags.Instance | BindingFlags.Public);
+            TitleProperty = ModType.GetProperty("Title", BindingFlags.Instance | BindingFlags.Public);
             ModObjectsProperty = ModType.GetProperty("ModObjects", BindingFlags.Instance | BindingFlags.Public);
 
             ModDirectoryField = ModType.GetField("modDirectory", BindingFlags.Instance | BindingFlags.NonPublic);
+            UnityVersionField = ModType.GetField("modUnityVersion", BindingFlags.Instance | BindingFlags.NonPublic);
 
             BombType = ReflectionHelper.FindType("ModBomb");
             WidgetType = ReflectionHelper.FindType("ModWidget");
@@ -31,8 +32,9 @@ public class ModSelectorService : MonoBehaviour
             Debug.Log(modObject);
             ModObject = modObject;
 
-            ModName = (string)ModNameProperty.GetValue(ModObject, null);
+            ModName = (string)TitleProperty.GetValue(ModObject, null);
             ModDirectory = (string)ModDirectoryField.GetValue(ModObject);
+            UnityVersion = (string)UnityVersionField.GetValue(ModObject);
             ModObjects = (List<GameObject>)ModObjectsProperty.GetValue(ModObject, null);
 
             try
@@ -163,9 +165,10 @@ public class ModSelectorService : MonoBehaviour
         }
 
         public static readonly Type ModType = null;
-        public static readonly PropertyInfo ModNameProperty = null;
+        public static readonly PropertyInfo TitleProperty = null;
         public static readonly PropertyInfo ModObjectsProperty = null;
         public static readonly FieldInfo ModDirectoryField = null;
+        public static readonly FieldInfo UnityVersionField = null;
 
         public static readonly Type BombType = null;
         public static readonly Type WidgetType = null;
@@ -176,6 +179,7 @@ public class ModSelectorService : MonoBehaviour
         public readonly string ModTitle;
         public readonly string ModVersion;
         public readonly string ModDirectory;
+        public readonly string UnityVersion;
         public readonly List<GameObject> ModObjects;
 
         private readonly List<GameObject> _activeModObjects;
@@ -423,9 +427,9 @@ public class ModSelectorService : MonoBehaviour
     {
         UnityEngine.Object modManager = ModManager;
 
-        FieldInfo modsField = _modManagerType.GetField("mods", BindingFlags.Instance | BindingFlags.NonPublic);
-        IList modsList = (IList)modsField.GetValue(modManager);
-        foreach (object modObject in modsList)
+        FieldInfo modsField = _modManagerType.GetField("loadedMods", BindingFlags.Instance | BindingFlags.NonPublic);
+        IDictionary modsList = (IDictionary)modsField.GetValue(modManager);
+        foreach (object modObject in modsList.Values)
         {
             ModWrapper modWrapper = new ModWrapper(modObject);
 
