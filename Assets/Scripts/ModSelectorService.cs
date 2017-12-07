@@ -16,10 +16,11 @@ public class ModSelectorService : MonoBehaviour
         static ModWrapper()
         {
             ModType = ReflectionHelper.FindType("Mod");
-            ModNameProperty = ModType.GetProperty("ModName", BindingFlags.Instance | BindingFlags.Public);
+            TitleProperty = ModType.GetProperty("Title", BindingFlags.Instance | BindingFlags.Public);
             ModObjectsProperty = ModType.GetProperty("ModObjects", BindingFlags.Instance | BindingFlags.Public);
 
             ModDirectoryField = ModType.GetField("modDirectory", BindingFlags.Instance | BindingFlags.NonPublic);
+            UnityVersionField = ModType.GetField("modUnityVersion", BindingFlags.Instance | BindingFlags.NonPublic);
 
             BombType = ReflectionHelper.FindType("ModBomb");
             WidgetType = ReflectionHelper.FindType("ModWidget");
@@ -31,8 +32,9 @@ public class ModSelectorService : MonoBehaviour
             Debug.Log(modObject);
             ModObject = modObject;
 
-            ModName = (string)ModNameProperty.GetValue(ModObject, null);
+            ModName = (string)TitleProperty.GetValue(ModObject, null);
             ModDirectory = (string)ModDirectoryField.GetValue(ModObject);
+            UnityVersion = (string)UnityVersionField.GetValue(ModObject);
             ModObjects = (List<GameObject>)ModObjectsProperty.GetValue(ModObject, null);
 
             try
@@ -163,9 +165,10 @@ public class ModSelectorService : MonoBehaviour
         }
 
         public static readonly Type ModType = null;
-        public static readonly PropertyInfo ModNameProperty = null;
+        public static readonly PropertyInfo TitleProperty = null;
         public static readonly PropertyInfo ModObjectsProperty = null;
         public static readonly FieldInfo ModDirectoryField = null;
+        public static readonly FieldInfo UnityVersionField = null;
 
         public static readonly Type BombType = null;
         public static readonly Type WidgetType = null;
@@ -176,6 +179,7 @@ public class ModSelectorService : MonoBehaviour
         public readonly string ModTitle;
         public readonly string ModVersion;
         public readonly string ModDirectory;
+        public readonly string UnityVersion;
         public readonly List<GameObject> ModObjects;
 
         private readonly List<GameObject> _activeModObjects;
@@ -307,15 +311,61 @@ public class ModSelectorService : MonoBehaviour
     #endregion
 
     #region Unity Lifecycle
-    private void Start()
+    private void Awake()
     {
         KMGameInfo gameInfo = GetComponent<KMGameInfo>();
         gameInfo.OnStateChange += OnStateChange;
+    }
 
+    private void Start()
+    {
         _instance = this;
 
         DontDestroyOnLoad(gameObject);
+    }
 
+    private void Update()
+    {
+        if (!_updateRequired && SceneManagerWatcher.CurrentState == SceneManagerWatcher.State.ModManager)
+        {
+            //Clear out the mod info, in preparation for new info when coming back from the mod manager
+            ClearModInfo();
+
+            _updateRequired = true;
+        }
+    }
+    #endregion
+
+    #region Setup
+    private void OnStateChange(KMGameInfo.State state)
+    {
+        if (_updateRequired && state == KMGameInfo.State.Setup)
+        {
+            //Update the mod info
+            SetupModInfo();
+
+            //Reload the active configuration
+            Profile.ReloadActiveConfiguration();
+
+            _updateRequired = false;
+        }
+    }
+
+    private void ClearModInfo()
+    {
+        //Ensure to re-enable everything back first!
+        EnableAll();
+        _activeModules = null;
+
+        _allSolvableModules.Clear();
+        _allNeedyModules.Clear();
+
+        _allServices.Clear();
+        _allMods.Clear();
+    }
+
+    private void SetupModInfo()
+    {
         //For modules
         GetSolvableModules();
         GetNeedyModules();
@@ -326,33 +376,10 @@ public class ModSelectorService : MonoBehaviour
 
         //For all other mod types
         GetModList();
-
-        //Reload the active configuration
-        Profile.ReloadActiveConfiguration();
-    }
-    #endregion
-
-    #region Events
-    public void OnStateChange(KMGameInfo.State state)
-    {
-        if (state == KMGameInfo.State.Setup)
-        {
-            StartCoroutine(InstanceHoldable());
-        }
-    }
-    #endregion
-
-    #region Setup
-    private IEnumerator InstanceHoldable()
-    {
-        yield return new WaitForSeconds(0.1f);
-        Instantiate(holdableToInstance, holdableToInstance.spawnPosition, Quaternion.identity);
     }
 
     private void GetSolvableModules()
     {
-        _allSolvableModules = new Dictionary<string, SolvableModule>();
-
         UnityEngine.Object modManager = ModManager;
 
         MethodInfo getSolvableBombModulesMethod = _modManagerType.GetMethod("GetSolvableBombModules", BindingFlags.Instance | BindingFlags.Public);
@@ -379,8 +406,6 @@ public class ModSelectorService : MonoBehaviour
 
     private void GetNeedyModules()
     {
-        _allNeedyModules = new Dictionary<string, NeedyModule>();
-
         UnityEngine.Object modManager = ModManager;
 
         MethodInfo getNeedyModulesMethod = _modManagerType.GetMethod("GetNeedyModules", BindingFlags.Instance | BindingFlags.Public);
@@ -442,9 +467,9 @@ public class ModSelectorService : MonoBehaviour
     {
         UnityEngine.Object modManager = ModManager;
 
-        FieldInfo modsField = _modManagerType.GetField("mods", BindingFlags.Instance | BindingFlags.NonPublic);
-        IList modsList = (IList)modsField.GetValue(modManager);
-        foreach (object modObject in modsList)
+        FieldInfo modsField = _modManagerType.GetField("loadedMods", BindingFlags.Instance | BindingFlags.NonPublic);
+        IDictionary modsList = (IDictionary)modsField.GetValue(modManager);
+        foreach (object modObject in modsList.Values)
         {
             ModWrapper modWrapper = new ModWrapper(modObject);
 
@@ -785,10 +810,6 @@ public class ModSelectorService : MonoBehaviour
     #endregion
     #endregion
 
-    #region Public Fields
-    public KMHoldable holdableToInstance = null;
-    #endregion
-
     #region Public Properties
     private static ModSelectorService _instance = null;
     public static ModSelectorService Instance
@@ -806,10 +827,10 @@ public class ModSelectorService : MonoBehaviour
     #endregion
 
     #region Modules
-    private Dictionary<string, SolvableModule> _allSolvableModules = null;
-    private Dictionary<string, NeedyModule> _allNeedyModules = null;
+    private Dictionary<string, SolvableModule> _allSolvableModules = new Dictionary<string, SolvableModule>();
+    private Dictionary<string, NeedyModule> _allNeedyModules = new Dictionary<string, NeedyModule>();
 
-    private IDictionary _activeModules = null;
+    private IDictionary _activeModules = new Dictionary<string, object>();
     private List<string> _disabledModules = new List<string>();
     #endregion
 
@@ -835,5 +856,7 @@ public class ModSelectorService : MonoBehaviour
         }
     }
     #endregion
+
+    private bool _updateRequired = true;
     #endregion
 }
