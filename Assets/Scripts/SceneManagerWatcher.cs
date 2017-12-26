@@ -30,6 +30,11 @@ public static class SceneManagerWatcher
         get
         {
             object sceneManager = InstanceProperty.GetValue(null, null);
+            if (sceneManager == null)
+            {
+                return State.Transitioning;
+            }
+
             int currentState = (int)CurrentStateProperty.GetValue(sceneManager, null);
 
             return (State)currentState;
