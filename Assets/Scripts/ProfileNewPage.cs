@@ -86,6 +86,11 @@ public class ProfileNewPage : MonoBehaviour
             _capsOn = false;
             UpdateLetters();
         }
+
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            Create();
+        }
     }
 
     private IEnumerator CaretFlash()

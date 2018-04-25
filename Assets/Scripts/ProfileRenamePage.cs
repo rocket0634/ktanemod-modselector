@@ -81,7 +81,7 @@ public class ProfileRenamePage : MonoBehaviour
             else if (!INVALID_CHARACTERS.Contains(c))
             {
                 AddCharacterNoModify(c.ToString());
-            } 
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.CapsLock))
@@ -97,6 +97,11 @@ public class ProfileRenamePage : MonoBehaviour
         {
             _capsOn = false;
             UpdateLetters();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            Apply();
         }
     }
 
