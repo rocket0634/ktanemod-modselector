@@ -647,12 +647,12 @@ public class ModSelectorService : MonoBehaviour
 
     public bool EnableMod(Type modType, string modObjectName)
     {
-        return _allMods.Values.Any((x) => x.EnableModObject(modType, modObjectName));
+        return _allMods.Values.ToArray().Any((x) => x.EnableModObject(modType, modObjectName));
     }
 
     public bool DisableMod(Type modType, string modObjectName)
     {
-        return _allMods.Values.Any((x) => x.DisableModObject(modType, modObjectName));
+        return _allMods.Values.ToArray().Any((x) => x.DisableModObject(modType, modObjectName));
     }
 
     public void EnableAllMods()

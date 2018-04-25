@@ -209,47 +209,52 @@ public class Profile
         ReloadActiveConfiguration();
     }
 
+    private static object _lockObject = new object();
+
     public static void UpdateProfileSelection(bool andSave = false)
     {
-        Debug.Log("Updating mod selector disable list...");
-
-        ModSelectorService.Instance.EnableAll();
-
-        if (ActiveProfiles.Count == 0)
+        lock (_lockObject)
         {
+            Debug.Log("Updating mod selector disable list...");
+
+            ModSelectorService.Instance.EnableAll();
+
+            if (ActiveProfiles.Count == 0)
+            {
+                if (andSave)
+                {
+                    SaveActiveConfiguration();
+                }
+
+                return;
+            }
+
+            HashSet<string> profileMergeSet = new HashSet<string>();
+            Profile[] intersects = ActiveProfiles.Where((x) => x.Operation == SetOperation.Intersect).ToArray();
+            if (intersects.Length > 0)
+            {
+                profileMergeSet.UnionWith(intersects[0].DisabledList);
+                for (int intersectProfileIndex = 1; intersectProfileIndex < intersects.Length; ++intersectProfileIndex)
+                {
+                    profileMergeSet.IntersectWith(intersects[intersectProfileIndex].DisabledList);
+                }
+            }
+
+            foreach (Profile union in ActiveProfiles.Where((x) => x.Operation == SetOperation.Union))
+            {
+                profileMergeSet.UnionWith(union.DisabledList);
+            }
+
+            foreach (string modObjectName in profileMergeSet)
+            {
+                Debug.LogFormat("Disabling {0}.", modObjectName);
+                ModSelectorService.Instance.Disable(modObjectName);
+            }
+
             if (andSave)
             {
                 SaveActiveConfiguration();
             }
-
-            return;
-        }
-
-        HashSet<string> profileMergeSet = new HashSet<string>();
-        Profile[] intersects = ActiveProfiles.Where((x) => x.Operation == SetOperation.Intersect).ToArray();
-        if (intersects.Length > 0)
-        {
-            profileMergeSet.UnionWith(intersects[0].DisabledList);
-            for (int intersectProfileIndex = 1; intersectProfileIndex < intersects.Length; ++intersectProfileIndex)
-            {
-                profileMergeSet.IntersectWith(intersects[intersectProfileIndex].DisabledList);
-            }
-        }
-
-        foreach (Profile union in ActiveProfiles.Where((x) => x.Operation == SetOperation.Union))
-        {
-            profileMergeSet.UnionWith(union.DisabledList);
-        }
-
-        foreach(string modObjectName in profileMergeSet)
-        {
-            Debug.LogFormat("Disabling {0}.", modObjectName);
-            ModSelectorService.Instance.Disable(modObjectName);
-        }
-
-        if (andSave)
-        {
-            SaveActiveConfiguration();
         }
     }
 
