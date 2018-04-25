@@ -37,6 +37,7 @@ MonoBehaviour:
     and also provides a fix to prevent bad initialisation in the case of duplicate
     mods installed.\r\nAs of v2.0.0, the Mod Selector is now a world-space object,
     much like the bomb binder, with dynamic profile merging and 2 modes of merging."
-  version: v2.2.1
-  outputFolder: E:\Games\SteamLibrary\steamapps\common\Keep Talking and Nobody Explodes\mods
+  version: v2.2.2
+  outputFolder: C:\Program Files (x86)\Steam\steamapps\common\Keep Talking and Nobody
+    Explodes\mods
   previewImage: {fileID: 2800000, guid: 3635e2c54a9c5ee4e9896ba11c4f5a43, type: 3}
