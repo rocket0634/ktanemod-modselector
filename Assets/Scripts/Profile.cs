@@ -468,15 +468,15 @@ public class Profile
         {
             EnsureProfileDirectory();
 
+            string oldPath = FullPath;
             string oldName = Name;
 
-            string newFilename = string.Format("{0}{1}", newName, Extension);
-            File.Move(FullPath, Path.Combine(ProfileDirectory, newFilename));
-
-            Filename = newFilename;
+            Filename = string.Format("{0}{1}", newName, Extension);
 
             AvailableProfiles.Remove(oldName);
             AvailableProfiles[Name] = this;
+
+            File.Move(oldPath, FullPath);
 
             UpdateProfileSelection(true);
         }
@@ -492,10 +492,10 @@ public class Profile
         {
             EnsureProfileDirectory();
 
-            File.Delete(FullPath);
-
             AvailableProfiles.Remove(Name);
             ActiveProfiles.Remove(this);
+
+            File.Delete(FullPath);
 
             UpdateProfileSelection(true);
         }
