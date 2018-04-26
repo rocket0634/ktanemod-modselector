@@ -74,8 +74,8 @@ public static class InputHelper
         get
         {
             if (_selectableManagers == null)
-            {
-                _selectableManagers = Resources.FindObjectsOfTypeAll(SelectableManagerType);
+            {                
+                _selectableManagers = GameObject.FindObjectsOfType(SelectableManagerType);
             }
 
             return _selectableManagers;
@@ -83,4 +83,3 @@ public static class InputHelper
     }
     private static UnityEngine.Object[] _selectableManagers = null;
 }
-
