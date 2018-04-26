@@ -136,7 +136,7 @@ public class ProfileRenamePage : MonoBehaviour
 
     public void AddCharacter(string text)
     {
-        newNameText.text += Filename + (_capsOn ? text.ToUpper() : text.ToLower()) + Caret;
+        newNameText.text = Filename + (_capsOn ? text.ToUpper() : text.ToLower()) + Caret;
 
         if (_capsOn)
         {
@@ -164,12 +164,15 @@ public class ProfileRenamePage : MonoBehaviour
     public void Apply()
     {
         if (string.IsNullOrEmpty(Filename) || !Profile.CanCreateProfile(Filename))
-        {            
+        {
+            Toast.QueueMessage(string.Format("Cannot rename profile to <i>'{0}'</i>.", Filename));
             return;
         }
 
         profile.Rename(Filename);
         InputHelper.InvokeCancel();
+
+        Toast.QueueMessage(string.Format("Renamed profile to <i>'{0}'</i>.", Filename));
     }
 
     private void UpdateLetters()

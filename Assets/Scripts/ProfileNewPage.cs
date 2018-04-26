@@ -153,6 +153,7 @@ public class ProfileNewPage : MonoBehaviour
     {
         if (string.IsNullOrEmpty(Filename) || !Profile.CanCreateProfile(Filename))
         {
+            Toast.QueueMessage(string.Format("Cannot name profile to <i>'{0}'</i>.", Filename));
             return;
         }
 
@@ -166,6 +167,7 @@ public class ProfileNewPage : MonoBehaviour
         {
             profileSettingsPage.profile = Profile.CreateProfile(Filename);
             profileSettingsPage.OnEnable();
+            Toast.QueueMessage(string.Format("Created profile <i>'{0}'</i>.", Filename));
         });
     }
 
