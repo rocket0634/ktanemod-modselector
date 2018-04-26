@@ -6,11 +6,12 @@ public class MainPage : MonoBehaviour
     public void ReloadProfiles()
     {
         Profile.ReloadActiveConfiguration();
+        Toast.QueueMessage("Profiles reloaded.");
     }
 
     public void OpenModProfilesFolder()
     {
-        Application.OpenURL(string.Format("file://{0}", Profile.ProfileDirectory));
+        PlatformActions.ShowPath(Profile.ProfileDirectory);
     }
 }
 

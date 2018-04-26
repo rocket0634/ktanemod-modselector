@@ -110,6 +110,6 @@ public class ModWrapperInfoPage : MonoBehaviour
     
     public void OpenPath()
     {
-        Application.OpenURL(string.Format("file://{0}", modWrapper.ModDirectory));
+        PlatformActions.ShowPath(modWrapper.ModDirectory);
     }
 }
