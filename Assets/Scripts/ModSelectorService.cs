@@ -318,9 +318,16 @@ public class ModSelectorService : MonoBehaviour
     public KMSelectable ModsMainPrefab = null;
     public Texture2D ModsMainIcon = null;
 
+    private APIProperties _properties = null;
+
     #region Unity Lifecycle
     private void Awake()
     {
+        _properties = GetComponentInChildren<APIProperties>();
+        _properties.Add("AddPageMethod", () => (Action<KMSelectable>)PageManager.AddPagePrefab, null);
+        _properties.Add("AddPagesMethod", () => (Action<KMSelectable[]>)PageManager.AddPagePrefabs, null);
+        _properties.Add("AddHomePageMethod", () => (Action<string, KMSelectable, Texture2D>)PageManager.AddHomePageEntry, null);
+
         PageManager.AddPagePrefabs(PagePrefabs);
 
         PageManager.AddHomePageEntry("Profiles", ProfilesMainPrefab, ProfilesMainIcon);
