@@ -327,6 +327,9 @@ public class ModSelectorService : MonoBehaviour
         _properties.Add("AddPageMethod", () => (Action<KMSelectable>)PageManager.AddPagePrefab, null);
         _properties.Add("AddPagesMethod", () => (Action<KMSelectable[]>)PageManager.AddPagePrefabs, null);
         _properties.Add("AddHomePageMethod", () => (Action<string, KMSelectable, Texture2D>)PageManager.AddHomePageEntry, null);
+        _properties.Add("GoToPageMethod", () => (Action<string>)FindObjectOfType<PageNavigation>().GoToPage, null);
+        _properties.Add("GoBackMethod", () => (Action)FindObjectOfType<PageNavigation>().GoBack, null);
+        //TOOD: The above is a little nasty, but not too bad yet. If there's more methods to expose, improve this!
 
         PageManager.AddPagePrefabs(PagePrefabs);
 
