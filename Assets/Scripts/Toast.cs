@@ -102,10 +102,10 @@ public class Toast : MonoBehaviour
             }
         }
 
+        width *= 2.0f;
         width += padding;
-        width *= textRenderer.characterSize * textRenderer.transform.localScale.x;
         Vector3 localScale = backgroundRenderer.transform.localScale;
-        localScale.x = width * 0.1f;
+        localScale.x = width;
         backgroundRenderer.transform.localScale = localScale;
     }
 

@@ -51,4 +51,9 @@ public class Page : MonoBehaviour
     {
         return _pageManager[pagePrefab.name].GetComponent<T>();
     }
+
+    public void GoBack()
+    {
+        _pageNavigation.GoBack();
+    }
 }

@@ -1,19 +1,20 @@
 using System.Linq;
 using UnityEngine;
 
-[RequireComponent(typeof(TabletPage))]
-public class ModWrapperSelectPage : MonoBehaviour
+public class ModBundleSelectPage : MonoBehaviour
 {
-    public ModWrapperInfoPage infoPage = null;
+    public ModBundleInfoPage InfoPagePrefab = null;
 
-    public TabletSelectableDisableable previousButton = null;
-    public TabletSelectableDisableable nextButton = null;
+    public UIElement PreviousButton = null;
+    public UIElement NextButton = null;
+
+    public UIElement[] Options = null;
 
     private int TotalPageCount
     {
         get
         {
-            return ((_modWrappers.Length - 1) / _options.Length) + 1;
+            return ((_modWrappers.Length - 1) / Options.Length) + 1;
         }
     }
 
@@ -21,7 +22,7 @@ public class ModWrapperSelectPage : MonoBehaviour
     {
         get
         {
-            return _pageIndex * _options.Length;
+            return _pageIndex * Options.Length;
         }
     }
 
@@ -42,23 +43,22 @@ public class ModWrapperSelectPage : MonoBehaviour
     }
 
     private ModSelectorService.ModWrapper[] _modWrappers = null;
-    private TabletSelectable[] _options = null;
     private int _pageIndex = 0;
-    private TabletPage _tabletPage = null;
+    private Page _page = null;
 
     private void Awake()
     {
-        _tabletPage = GetComponent<TabletPage>();
-        _options = _tabletPage.GridSelectables;
+        _page = GetComponent<Page>();
 
-        for (int optionIndex = 0; optionIndex < _options.Length; ++optionIndex)
+        for (int optionIndex = 0; optionIndex < Options.Length; ++optionIndex)
         {
             int localOptionIndex = optionIndex;
 
-            KMSelectable selectable = _options[optionIndex].GetComponent<KMSelectable>();
-            selectable.OnInteract += delegate ()
+            KMSelectable selectable = Options[optionIndex].GetComponent<KMSelectable>();
+            selectable.OnInteract += delegate()
             {
-                infoPage.modWrapper = _modWrappers[OptionOffset + localOptionIndex];
+                _page.GetPageWithComponent(InfoPagePrefab).ModWrapper = _modWrappers[OptionOffset + localOptionIndex];
+                _page.GoToPage(InfoPagePrefab);
                 return true;
             };
         }
@@ -86,35 +86,32 @@ public class ModWrapperSelectPage : MonoBehaviour
 
         _pageIndex = Mathf.Clamp(pageIndex, 0, TotalPageCount - 1);
 
-        for (int optionIndex = 0; optionIndex < _options.Length; ++optionIndex)
+        for (int optionIndex = 0; optionIndex < Options.Length; ++optionIndex)
         {
+            UIElement option = Options[optionIndex];
             int trueOptionIndex = OptionOffset + optionIndex;
 
             if (trueOptionIndex < _modWrappers.Length)
             {
-                _options[optionIndex].transform.parent.gameObject.SetActive(true);
-
-                if (_options[optionIndex].textMesh != null)
-                {
-                    _options[optionIndex].textMesh.text = _modWrappers[trueOptionIndex].ModTitle;
-                }
+                option.gameObject.SetActive(true);
+                option.Text = _modWrappers[trueOptionIndex].ModTitle;
             }
             else
             {
-                _options[optionIndex].transform.parent.gameObject.SetActive(false);
+                option.gameObject.SetActive(false);
             }
         }
 
-        _tabletPage.header.text = string.Format("<b>Select Mod</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
+        _page.HeaderText = string.Format("<b>Select Mod</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
 
-        if (previousButton != null)
+        if (PreviousButton != null)
         {
-            previousButton.SetEnable(PreviousEnabled);
+            PreviousButton.CanSelect = PreviousEnabled;
         }
 
-        if (nextButton != null)
+        if (NextButton != null)
         {
-            nextButton.SetEnable(NextEnabled);
+            NextButton.CanSelect = NextEnabled;
         }
     }
 

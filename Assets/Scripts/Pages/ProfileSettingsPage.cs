@@ -6,9 +6,8 @@ using UnityEngine;
 public class ProfileSettingsPage : MonoBehaviour
 {
     public ModTogglePage ModTogglePagePrefab = null;
-
-    //TODO
-    //public ProfileRenamePage renamePage = null;
+    public ProfileRenamePage RenamePagePrefab = null;
+    public ProfileConfirmDeletePage ConfirmDeletePagePrefab = null;
 
     public Profile Profile = null;
     public UIElement RegularModulesSelectable = null;
@@ -141,8 +140,14 @@ public class ProfileSettingsPage : MonoBehaviour
 
     public void Rename()
     {
-        //TODO
-        //renamePage.profile = Profile;
+        _page.GetPageWithComponent(RenamePagePrefab).Profile = Profile;
+        _page.GoToPage(RenamePagePrefab);
+    }
+
+    public void Delete()
+    {
+        _page.GetPageWithComponent(ConfirmDeletePagePrefab).Profile = Profile;
+        _page.GoToPage(ConfirmDeletePagePrefab);
     }
 
     private string GetSelectableString(ModSelectorService.ModType modType)

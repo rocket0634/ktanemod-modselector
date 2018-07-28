@@ -3,19 +3,20 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-public class ProfileRenamePage : MonoBehaviour
+public class ProfileNewPage : MonoBehaviour
 {
-    public Profile profile = null;
+    public TextMesh NewNameText = null;
+    public UIElement[] Letters = null;
 
-    public TextMesh newNameText = null;
-    public TextMesh[] toggleableLetters = null;
-    public TabletPage returnPage = null;
+    public ProfileSettingsPage SettingsPagePrefab = null;
+
+    private Page _page = null;
 
     private string Filename
     {
         get
         {
-            return newNameText.text.Substring(0, newNameText.text.Length - 1);
+            return NewNameText.text.Substring(0, NewNameText.text.Length - 1);
         }
     }
 
@@ -23,15 +24,14 @@ public class ProfileRenamePage : MonoBehaviour
     {
         get
         {
-            return newNameText.text[newNameText.text.Length - 1];
+            return NewNameText.text[NewNameText.text.Length - 1];
         }
         set
         {
-            newNameText.text = string.Format("{0}{1}", Filename, value);
+            NewNameText.text = string.Format("{0}{1}", Filename, value);
         }
     }
 
-    private TabletPage _tabletPage = null;
     private bool _capsOn = false;
     private Coroutine _caretFlashCoroutine = null;
 
@@ -39,24 +39,27 @@ public class ProfileRenamePage : MonoBehaviour
 
     private void Awake()
     {
-        _tabletPage = GetComponent<TabletPage>();
+        _page = GetComponent<Page>();
+
+        foreach (UIElement letter in Letters)
+        {
+            UIElement localLetter = letter;
+            localLetter.InteractAction.AddListener(delegate()
+            {
+                AddCharacter(localLetter.Text);
+            });
+        }
     }
 
     private void OnEnable()
     {
-        if (_tabletPage != null && _tabletPage.header != null)
+        if (NewNameText != null)
         {
-            _tabletPage.header.text = string.Format("<b>{0}</b>\n<size=16>Rename Profile</size>", profile == null ? "**NULL**" : profile.FriendlyName);
-        }
-
-        if (newNameText != null)
-        {
-            newNameText.text = profile == null ? "NULL " : (profile.FriendlyName + " ");
+            NewNameText.text = " ";
         }
 
         _capsOn = true;
         UpdateLetters();
-
 
         _caretFlashCoroutine = StartCoroutine(CaretFlash());
     }
@@ -101,7 +104,7 @@ public class ProfileRenamePage : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            Apply();
+            Create();
         }
     }
 
@@ -125,7 +128,7 @@ public class ProfileRenamePage : MonoBehaviour
 
     public void AddCharacterNoModify(string text)
     {
-        newNameText.text = Filename + text + Caret;
+        NewNameText.text = Filename + text + Caret;
 
         if (_capsOn)
         {
@@ -136,7 +139,7 @@ public class ProfileRenamePage : MonoBehaviour
 
     public void AddCharacter(string text)
     {
-        newNameText.text = Filename + (_capsOn ? text.ToUpper() : text.ToLower()) + Caret;
+        NewNameText.text = Filename + (_capsOn ? text.ToUpper() : text.ToLower()) + Caret;
 
         if (_capsOn)
         {
@@ -147,12 +150,12 @@ public class ProfileRenamePage : MonoBehaviour
 
     public void DeleteCharacter()
     {
-        if (newNameText.text.Length == 1)
+        if (NewNameText.text.Length == 1)
         {
             return;
         }
 
-        newNameText.text = Filename.Substring(0, Filename.Length - 1) + Caret;
+        NewNameText.text = Filename.Substring(0, Filename.Length - 1) + Caret;
 
         if (_capsOn)
         {
@@ -161,25 +164,26 @@ public class ProfileRenamePage : MonoBehaviour
         }
     }
 
-    public void Apply()
+    public void Create()
     {
         if (string.IsNullOrEmpty(Filename) || !Profile.CanCreateProfile(Filename))
         {
-            Toast.QueueMessage(string.Format("Cannot rename profile to <i>'{0}'</i>.", Filename));
+            Toast.QueueMessage(string.Format("Cannot name profile to <i>'{0}'</i>.", Filename));
             return;
         }
 
-        profile.Rename(Filename);
-        InputHelper.InvokeCancel();
+        _page.GetPageWithComponent(SettingsPagePrefab).Profile = Profile.CreateProfile(Filename);
+        _page.GoBack();
+        _page.GoToPage(SettingsPagePrefab);
 
-        Toast.QueueMessage(string.Format("Renamed profile to <i>'{0}'</i>.", Filename));
+        Toast.QueueMessage(string.Format("Created profile <i>'{0}'</i>.", Filename));
     }
 
     private void UpdateLetters()
     {
-        foreach (TextMesh textMesh in toggleableLetters)
+        foreach (UIElement letter in Letters)
         {
-            textMesh.text = _capsOn ? textMesh.text.ToUpper() : textMesh.text.ToLower();
+            letter.Text = _capsOn ? letter.Text.ToUpper() : letter.Text.ToLower();
         }
     }
 }
