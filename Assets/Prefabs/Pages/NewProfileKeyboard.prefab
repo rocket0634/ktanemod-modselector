@@ -11022,6 +11022,8 @@ MonoBehaviour:
   - {fileID: 114790008904969048}
   - {fileID: 114476011034423618}
   - {fileID: 114527657549457100}
+  SelectPagePrefab: {fileID: 114146782867052700, guid: 185ff317f4d20fb4fb39c2da286104c3,
+    type: 2}
   SettingsPagePrefab: {fileID: 114712749345563536, guid: 1b843eeefe8047e48a52be3452fb5133,
     type: 2}
 --- !u!114 &114231848143018412

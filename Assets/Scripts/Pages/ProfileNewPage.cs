@@ -8,6 +8,7 @@ public class ProfileNewPage : MonoBehaviour
     public TextMesh NewNameText = null;
     public UIElement[] Letters = null;
 
+    public ProfileSelectPage SelectPagePrefab = null;
     public ProfileSettingsPage SettingsPagePrefab = null;
 
     private Page _page = null;
@@ -174,6 +175,7 @@ public class ProfileNewPage : MonoBehaviour
 
         _page.GetPageWithComponent(SettingsPagePrefab).Profile = Profile.CreateProfile(Filename);
         _page.GoBack();
+        _page.GoToPage(SelectPagePrefab);
         _page.GoToPage(SettingsPagePrefab);
 
         Toast.QueueMessage(string.Format("Created profile <i>'{0}'</i>.", Filename));
