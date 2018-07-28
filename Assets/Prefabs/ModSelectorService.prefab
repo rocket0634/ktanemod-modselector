@@ -56,6 +56,9 @@ MonoBehaviour:
   PagePrefabs:
   - {fileID: 114346086686609974, guid: 7b304b3e9ac1e8f469ac91bd07f5db52, type: 2}
   - {fileID: 114346086686609974, guid: e7e7cf9024c7dd04ea6ae8768b3bc837, type: 2}
+  - {fileID: 114199678585302454, guid: 185ff317f4d20fb4fb39c2da286104c3, type: 2}
+  - {fileID: 114350713399945444, guid: 1b843eeefe8047e48a52be3452fb5133, type: 2}
+  - {fileID: 114055876217734574, guid: 24235cb48eef04a4e80e4f862d684a13, type: 2}
 --- !u!114 &114000013468986108
 MonoBehaviour:
   m_ObjectHideFlags: 1

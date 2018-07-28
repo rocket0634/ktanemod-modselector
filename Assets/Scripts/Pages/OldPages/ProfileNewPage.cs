@@ -165,7 +165,7 @@ public class ProfileNewPage : MonoBehaviour
 
         InputInvoker.Instance.Enqueue(delegate ()
         {
-            profileSettingsPage.profile = Profile.CreateProfile(Filename);
+            profileSettingsPage.Profile = Profile.CreateProfile(Filename);
             profileSettingsPage.OnEnable();
             Toast.QueueMessage(string.Format("Created profile <i>'{0}'</i>.", Filename));
         });

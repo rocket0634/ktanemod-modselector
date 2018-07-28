@@ -490,7 +490,7 @@ Transform:
   m_GameObject: {fileID: 1615079812197044}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 960, y: 0, z: -0.0001}
-  m_LocalScale: {x: 1920, y: 5, z: 1}
+  m_LocalScale: {x: 1920, y: 2, z: 1}
   m_Children: []
   m_Father: {fileID: 4436606031961164}
   m_RootOrder: 2
@@ -1350,6 +1350,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Text: Next Page 2
   Icon: {fileID: 2800000, guid: b3c3dd8a88ccc874080edc1c659f9dc2, type: 3}
+  DisabledIcon: {fileID: 0}
   TextRenderer: {fileID: 102039379329606638}
   IconMesh: {fileID: 23578415055276612}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -1414,7 +1415,6 @@ MonoBehaviour:
   Highlight: {fileID: 23030590400754152}
   UnselectedColor: {r: 1, g: 1, b: 1, a: 1}
   SelectedColor: {r: 0.49264705, g: 0.70608515, b: 1, a: 1}
-  DisabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
 --- !u!114 &114309218700214184
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1451,6 +1451,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Text: Entry 1
   Icon: {fileID: 2800000, guid: 5055b10403ec8bd4ba250b8ba8d36ed2, type: 3}
+  DisabledIcon: {fileID: 0}
   TextRenderer: {fileID: 102472218523032184}
   IconMesh: {fileID: 23787694192207860}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -1526,6 +1527,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Text: Next Page
   Icon: {fileID: 2800000, guid: 5055b10403ec8bd4ba250b8ba8d36ed2, type: 3}
+  DisabledIcon: {fileID: 0}
   TextRenderer: {fileID: 102667525046340658}
   IconMesh: {fileID: 23321613006789434}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -1675,7 +1677,6 @@ MonoBehaviour:
   Highlight: {fileID: 23711935792958614}
   UnselectedColor: {r: 1, g: 1, b: 1, a: 1}
   SelectedColor: {r: 0.49264705, g: 0.70608515, b: 1, a: 1}
-  DisabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
 --- !u!114 &114837862610438978
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1716,4 +1717,3 @@ MonoBehaviour:
   Highlight: {fileID: 23926501089535976}
   UnselectedColor: {r: 1, g: 1, b: 1, a: 1}
   SelectedColor: {r: 0.49264705, g: 0.70608515, b: 1, a: 1}
-  DisabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}

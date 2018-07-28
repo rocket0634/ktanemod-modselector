@@ -1,8 +1,13 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
-public class ProfileTogglePage : MonoBehaviour
+public class ModTogglePage : MonoBehaviour
 {
+    public Profile Profile = null;
+    public ModSelectorService.ModType ModType = ModSelectorService.ModType.Unknown;
+    public KeyValuePair<string, string>[] Entries = null;
+
     public UIElement PreviousButton = null;
     public UIElement NextButton = null;
 
@@ -10,7 +15,12 @@ public class ProfileTogglePage : MonoBehaviour
     {
         get
         {
-            return ((_availableProfiles.Length - 1) / _toggles.Length) + 1;
+            if (Entries == null)
+            {
+                return 1;
+            }
+
+            return ((Entries.Length - 1) / _toggles.Length) + 1;
         }
     }
 
@@ -38,29 +48,25 @@ public class ProfileTogglePage : MonoBehaviour
         }
     }
 
-    public Profile[] _availableProfiles = null;
     private UIToggle[] _toggles = null;
-    private Page _page = null;
     private int _pageIndex = 0;
+    private Page _page = null;
 
     private void Awake()
     {
         _toggles = GetComponentsInChildren<UIToggle>(true);
-        for (int toggleIndex = 0; toggleIndex < _toggles.Length; ++toggleIndex)
+        for(int toggleIndex = 0; toggleIndex < _toggles.Length; ++toggleIndex)
         {
             int localToggleIndex = toggleIndex;
-
             _toggles[toggleIndex].OnToggleChange += delegate (bool toggled)
             {
                 if (toggled)
                 {
-                    Profile.ActiveProfiles.Add(_availableProfiles[ToggleOffset + localToggleIndex]);
-                    Profile.UpdateProfileSelection(true);
+                    Profile.Disable(Entries[ToggleOffset + localToggleIndex].Key);
                 }
                 else
                 {
-                    Profile.ActiveProfiles.Remove(_availableProfiles[ToggleOffset + localToggleIndex]);
-                    Profile.UpdateProfileSelection(true);
+                    Profile.Enable(Entries[ToggleOffset + localToggleIndex].Key);
                 }
             };
         }
@@ -70,14 +76,12 @@ public class ProfileTogglePage : MonoBehaviour
 
     private void OnEnable()
     {
-        _availableProfiles = Profile.AvailableProfiles.OrderBy((x) => -(int)(x.Value.Operation)).ThenBy((y) => y.Key).Select((z) => z.Value).ToArray();
-
         SetPage(0);
     }
 
     public void SetPage(int pageIndex)
     {
-        if (_toggles == null)
+        if (Entries == null || Profile == null || _toggles == null)
         {
             return;
         }
@@ -90,15 +94,12 @@ public class ProfileTogglePage : MonoBehaviour
 
             UIToggle toggle = _toggles[toggleIndex];
 
-            if (trueToggleIndex < _availableProfiles.Length)
+            if (trueToggleIndex < Entries.Length)
             {
-                Profile profile = _availableProfiles[trueToggleIndex];
-
                 toggle.gameObject.SetActive(true);
-                toggle.IsOn = Profile.ActiveProfiles.Contains(profile);
 
-                toggle.BackgroundHighlight.UnselectedColor = profile.Operation.GetColor();
-                toggle.Text = _availableProfiles[trueToggleIndex].FriendlyName;
+                toggle.IsOn = !Profile.IsEnabled(Entries[trueToggleIndex].Key);
+                toggle.Text = Entries[trueToggleIndex].Value;
             }
             else
             {
@@ -106,7 +107,7 @@ public class ProfileTogglePage : MonoBehaviour
             }
         }
 
-        _page.HeaderText = string.Format("<b>Select Active Profiles</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
+        _page.HeaderText = string.Format("<b>{0}</b>\n<size=16>{1}, page {2} of {3}</size>", Profile.FriendlyName, ModType.GetAttributeOfType<DescriptionAttribute>().Description, _pageIndex + 1, TotalPageCount);
 
         if (PreviousButton != null)
         {
@@ -119,6 +120,18 @@ public class ProfileTogglePage : MonoBehaviour
         }
     }
 
+    public void EnableAll()
+    {
+        Profile.EnableAllOfType(ModType);
+        SetPage(_pageIndex);
+    }
+
+    public void DisableAll()
+    {
+        Profile.DisableAllOfType(ModType);
+        SetPage(_pageIndex);
+    }
+
     public void NextPage()
     {
         SetPage(_pageIndex + 1);
@@ -127,12 +140,5 @@ public class ProfileTogglePage : MonoBehaviour
     public void PreviousPage()
     {
         SetPage(_pageIndex - 1);
-    }
-
-    public void DisableAll()
-    {
-        Profile.ActiveProfiles.Clear();
-        Profile.UpdateProfileSelection(true);
-        SetPage(_pageIndex);
     }
 }
