@@ -12,7 +12,13 @@ public static class KMHighlightableExtensions
 
     public static GameObject GetInternalHighlightableObject(this KMHighlightable highlightable)
     {
-        return (GameObject)HighlightField.GetValue(highlightable.GetComponent(HighlightableType));
+        Component modHighlightable = highlightable.GetComponent(HighlightableType);
+        if (modHighlightable != null)
+        {
+            return (GameObject)HighlightField.GetValue(modHighlightable);
+        }
+
+        return null;
     }
 
     private static readonly Type HighlightableType;

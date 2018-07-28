@@ -619,6 +619,12 @@ public class AssetBundler
                     materialInfo.ShaderNames = new List<string>();
                     foreach(Material material in renderer.sharedMaterials)
                     {
+                        if (material == null)
+                        {
+                            Debug.LogWarning(string.Format("Renderer {0} has an empty material entry!", renderer.name));
+                            continue;
+                        }
+
                         materialInfo.ShaderNames.Add(material.shader.name);
 
                         if(material.shader.name == "Standard")

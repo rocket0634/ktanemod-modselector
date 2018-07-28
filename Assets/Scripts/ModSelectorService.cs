@@ -310,9 +310,13 @@ public class ModSelectorService : MonoBehaviour
     }
     #endregion
 
+    public KMSelectable[] PagePrefabs = null;
+
     #region Unity Lifecycle
     private void Awake()
     {
+        PageManager.AddPagePrefabs(PagePrefabs);
+
         KMGameInfo gameInfo = GetComponent<KMGameInfo>();
         gameInfo.OnStateChange += OnStateChange;
     }
