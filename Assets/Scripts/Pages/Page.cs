@@ -23,6 +23,10 @@ public class Page : MonoBehaviour
     private void Update()
     {
 #if UNITY_EDITOR
+        if (_selectable == null)
+        {
+            _selectable = GetComponent<KMSelectable>();
+        }
         foreach (KMSelectable child in _selectable.Children)
         {
             if (child != null)

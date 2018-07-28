@@ -3,6 +3,13 @@ using UnityEngine;
 
 public class PageManager : MonoBehaviour
 {
+    public class HomePageEntry
+    {
+        public string DisplayName;
+        public KMSelectable PageSelectable;
+        public Texture2D Icon;
+    }
+
     public Transform RootTransform = null;
 
     public KMSelectable this[string pageName]
@@ -29,7 +36,17 @@ public class PageManager : MonoBehaviour
         }
     }
 
+    public static IEnumerable<HomePageEntry> HomePageEntries
+    {
+        get
+        {
+            return HomePageEntryList;
+        }
+    }
+
     private static readonly Dictionary<string, KMSelectable> PagePrefabs = new Dictionary<string, KMSelectable>();
+    private static readonly List<HomePageEntry> HomePageEntryList = new List<HomePageEntry>();
+
     private readonly Dictionary<string, KMSelectable> Pages = new Dictionary<string, KMSelectable>();
 
     public static void AddPagePrefabs(KMSelectable[] pageSelectables)
@@ -55,6 +72,11 @@ public class PageManager : MonoBehaviour
         PagePrefabs[name] = pageSelectable;
         pageSelectable.EnsureModSelectable();
         pageSelectable.Reproxy();
+    }
+
+    public static void AddHomePageEntry(string displayName, KMSelectable pageSelectable, Texture2D icon)
+    {
+        HomePageEntryList.Add(new HomePageEntry() { DisplayName = displayName, PageSelectable = pageSelectable, Icon = icon });
     }
 
     public void DestroyCachedPages()

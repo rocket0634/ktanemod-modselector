@@ -312,10 +312,19 @@ public class ModSelectorService : MonoBehaviour
 
     public KMSelectable[] PagePrefabs = null;
 
+    public KMSelectable ProfilesMainPrefab = null;
+    public Texture2D ProfilesMainIcon = null;
+
+    public KMSelectable ModsMainPrefab = null;
+    public Texture2D ModsMainIcon = null;
+
     #region Unity Lifecycle
     private void Awake()
     {
         PageManager.AddPagePrefabs(PagePrefabs);
+
+        PageManager.AddHomePageEntry("Profiles", ProfilesMainPrefab, ProfilesMainIcon);
+        PageManager.AddHomePageEntry("Mods Info", ModsMainPrefab, ModsMainIcon);
 
         KMGameInfo gameInfo = GetComponent<KMGameInfo>();
         gameInfo.OnStateChange += OnStateChange;

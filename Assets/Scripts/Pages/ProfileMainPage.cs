@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class MainPage : MonoBehaviour
+public class ProfileMainPage : MonoBehaviour
 {
     public void ReloadProfiles()
     {
