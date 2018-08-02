@@ -54,13 +54,13 @@ public class ProfileTogglePage : MonoBehaviour
             {
                 if (toggled)
                 {
-                    Profile.ActiveProfiles.Add(_availableProfiles[ToggleOffset + localToggleIndex]);
-                    Profile.UpdateProfileSelection(true);
+                    ProfileManager.ActiveProfiles.Add(_availableProfiles[ToggleOffset + localToggleIndex]);
+                    ProfileManager.UpdateProfileSelection(true);
                 }
                 else
                 {
-                    Profile.ActiveProfiles.Remove(_availableProfiles[ToggleOffset + localToggleIndex]);
-                    Profile.UpdateProfileSelection(true);
+                    ProfileManager.ActiveProfiles.Remove(_availableProfiles[ToggleOffset + localToggleIndex]);
+                    ProfileManager.UpdateProfileSelection(true);
                 }
             };
         }
@@ -70,7 +70,7 @@ public class ProfileTogglePage : MonoBehaviour
 
     private void OnEnable()
     {
-        _availableProfiles = Profile.AvailableProfiles.OrderBy((x) => -(int)(x.Value.Operation)).ThenBy((y) => y.Key).Select((z) => z.Value).ToArray();
+        _availableProfiles = ProfileManager.AvailableProfiles.OrderBy((x) => -(int)(x.Value.Operation)).ThenBy((y) => y.Key).Select((z) => z.Value).ToArray();
 
         SetPage(0);
     }
@@ -95,7 +95,7 @@ public class ProfileTogglePage : MonoBehaviour
                 Profile profile = _availableProfiles[trueToggleIndex];
 
                 toggle.gameObject.SetActive(true);
-                toggle.IsOn = Profile.ActiveProfiles.Contains(profile);
+                toggle.IsOn = ProfileManager.ActiveProfiles.Contains(profile);
 
                 toggle.BackgroundHighlight.UnselectedColor = profile.Operation.GetColor();
                 toggle.Text = _availableProfiles[trueToggleIndex].FriendlyName;
@@ -131,8 +131,8 @@ public class ProfileTogglePage : MonoBehaviour
 
     public void DisableAll()
     {
-        Profile.ActiveProfiles.Clear();
-        Profile.UpdateProfileSelection(true);
+        ProfileManager.ActiveProfiles.Clear();
+        ProfileManager.UpdateProfileSelection(true);
         SetPage(_pageIndex);
     }
 }

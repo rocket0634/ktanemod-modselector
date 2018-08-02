@@ -368,7 +368,7 @@ public class ModSelectorService : MonoBehaviour
             SetupModInfo();
 
             //Reload the active configuration
-            Profile.ReloadActiveConfiguration();
+            ProfileManager.ReloadActiveConfiguration();
 
             _updateRequired = false;
         }
@@ -579,6 +579,53 @@ public class ModSelectorService : MonoBehaviour
             default:
                 return null;
         }
+    }
+
+    public IEnumerable<string> GetAllModNames()
+    {
+        return GetModNames(ModType.SolvableModule)
+            .Concat(GetModNames(ModType.NeedyModule))
+            .Concat(GetModNames(ModType.Bomb))
+            .Concat(GetModNames(ModType.GameplayRoom))
+            .Concat(GetModNames(ModType.Widget))
+            .Concat(GetModNames(ModType.Service));
+    }
+
+    public IEnumerable<KeyValuePair<string, string>> GetModNamesAndDisplayNames(ModType modType)
+    {
+        switch (modType)
+        {
+            case ModType.SolvableModule:
+                return AllSolvableModules.Select((x) => new KeyValuePair<string, string>(x.ModuleType, x.ModuleName));
+
+            case ModType.NeedyModule:
+                return AllNeedyModules.Select((x) => new KeyValuePair<string, string>(x.ModuleType, x.ModuleName));
+
+            case ModType.Bomb:
+                return AllBombMods.Select((x) => new KeyValuePair<string, string>(x.name, x.name.Replace("(Clone)", "")));
+
+            case ModType.GameplayRoom:
+                return AllGameplayRoomMods.Select((x) => new KeyValuePair<string, string>(x.name, x.name.Replace("(Clone)", "")));
+
+            case ModType.Widget:
+                return AllWidgetMods.Select((x) => new KeyValuePair<string, string>(x.name, x.name.Replace("(Clone)", "")));
+
+            case ModType.Service:
+                return AllServices.Select((x) => new KeyValuePair<string, string>(x.ServiceName, x.ServiceName.Replace("(Clone)", "")));
+
+            default:
+                return null;
+        }
+    }
+
+    public IEnumerable<KeyValuePair<string, string>> GetAllModNamesAndDisplayNames()
+    {
+        return GetModNamesAndDisplayNames(ModType.SolvableModule)
+            .Concat(GetModNamesAndDisplayNames(ModType.NeedyModule))
+            .Concat(GetModNamesAndDisplayNames(ModType.Bomb))
+            .Concat(GetModNamesAndDisplayNames(ModType.GameplayRoom))
+            .Concat(GetModNamesAndDisplayNames(ModType.Widget))
+            .Concat(GetModNamesAndDisplayNames(ModType.Service));
     }
 
     public void EnableAll()

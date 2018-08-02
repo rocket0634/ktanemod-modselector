@@ -96,6 +96,8 @@ MonoBehaviour:
   - {fileID: 114945834869226282, guid: bec01475e7153ae4eae044a363ab9337, type: 2}
   - {fileID: 114893889318660462, guid: 5799b85dae4f76347b4585332ea728c8, type: 2}
   - {fileID: 114240474550128716, guid: bcc79265891051a49afecae4dff7aa1a, type: 2}
+  - {fileID: 114776263751625530, guid: a83bd744aac7b044682633ae06d6bda7, type: 2}
+  - {fileID: 114823589910738634, guid: fffbed05f7e81ca45a2911d22b87e933, type: 2}
   ProfilesMainPrefab: {fileID: 114346086686609974, guid: 7b304b3e9ac1e8f469ac91bd07f5db52,
     type: 2}
   ProfilesMainIcon: {fileID: 2800000, guid: 82cba5c5af2a2764c9839c587742b675, type: 3}

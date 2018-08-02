@@ -3,12 +3,13 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-public class ProfileNewPage : MonoBehaviour
+public class ProfileCopyPage : MonoBehaviour
 {
     public TextMesh NewNameText = null;
     public UIElement[] Letters = null;
 
-    public ProfileSelectPage SelectPagePrefab = null;
+    public Profile Profile = null;
+
     public ProfileSettingsPage SettingsPagePrefab = null;
 
     private Page _page = null;
@@ -45,7 +46,7 @@ public class ProfileNewPage : MonoBehaviour
         foreach (UIElement letter in Letters)
         {
             UIElement localLetter = letter;
-            localLetter.InteractAction.AddListener(delegate()
+            localLetter.InteractAction.AddListener(delegate ()
             {
                 AddCharacter(localLetter.Text);
             });
@@ -105,7 +106,7 @@ public class ProfileNewPage : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            Create();
+            Apply();
         }
     }
 
@@ -165,20 +166,19 @@ public class ProfileNewPage : MonoBehaviour
         }
     }
 
-    public void Create()
+    public void Apply()
     {
         if (string.IsNullOrEmpty(Filename) || !ProfileManager.CanCreateProfile(Filename))
         {
-            Toast.QueueMessage(string.Format("Cannot name profile to <i>'{0}'</i>.", Filename));
+            Toast.QueueMessage(string.Format("Cannot copy profile to <i>'{0}'</i>.", Filename));
             return;
         }
 
-        _page.GetPageWithComponent(SettingsPagePrefab).Profile = ProfileManager.CreateProfile(Filename);
+        Profile = Profile.Copy(Filename);
+        _page.GetPageWithComponent(SettingsPagePrefab).Profile = Profile;
         _page.GoBack();
-        _page.GoToPage(SelectPagePrefab);
-        _page.GoToPage(SettingsPagePrefab);
 
-        Toast.QueueMessage(string.Format("Created profile <i>'{0}'</i>.", Filename));
+        Toast.QueueMessage(string.Format("Copy profile to <i>'{0}'</i>.", Filename));
     }
 
     private void UpdateLetters()

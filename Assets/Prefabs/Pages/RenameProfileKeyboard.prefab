@@ -975,7 +975,7 @@ GameObject:
   - component: {fileID: 4188901922998524}
   - component: {fileID: 114757706554032038}
   - component: {fileID: 114034586117305194}
-  - component: {fileID: 114191540430998980}
+  - component: {fileID: 114080576721383892}
   m_Layer: 0
   m_Name: RenameProfileKeyboard
   m_TagString: Untagged
@@ -10667,6 +10667,47 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShaderNames:
   - KT/Mobile/DiffuseTintAlpha
+--- !u!114 &114080576721383892
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1286122955792888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9837b0346f9766f49b8df153679c27e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NewNameText: {fileID: 102778920072113012}
+  Letters:
+  - {fileID: 114199146411013668}
+  - {fileID: 114325406686987688}
+  - {fileID: 114019249862182896}
+  - {fileID: 114474916968372502}
+  - {fileID: 114286539174112366}
+  - {fileID: 114821195563745460}
+  - {fileID: 114883629226283246}
+  - {fileID: 114411619757625974}
+  - {fileID: 114014872230612382}
+  - {fileID: 114803288745954552}
+  - {fileID: 114176432743482638}
+  - {fileID: 114901872886849086}
+  - {fileID: 114067714423862652}
+  - {fileID: 114033899692269698}
+  - {fileID: 114342273674411310}
+  - {fileID: 114167735375894010}
+  - {fileID: 114036387317597170}
+  - {fileID: 114303392846827966}
+  - {fileID: 114460996221865060}
+  - {fileID: 114102535604080288}
+  - {fileID: 114445434260764786}
+  - {fileID: 114057226944710066}
+  - {fileID: 114824543424761032}
+  - {fileID: 114935385881625036}
+  - {fileID: 114948747897285194}
+  - {fileID: 114240635540455500}
+  SettingsPagePrefab: {fileID: 114712749345563536, guid: 1b843eeefe8047e48a52be3452fb5133,
+    type: 2}
 --- !u!114 &114090780773664982
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11009,57 +11050,6 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
---- !u!114 &114191540430998980
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1286122955792888}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9837b0346f9766f49b8df153679c27e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  NewNameText: {fileID: 102778920072113012}
-  Letters:
-  - {fileID: 114196963766667982}
-  - {fileID: 114591366263902268}
-  - {fileID: 114671548244825788}
-  - {fileID: 114406339732375166}
-  - {fileID: 114372865402106342}
-  - {fileID: 114742526733195682}
-  - {fileID: 114062680341758050}
-  - {fileID: 114512487113522150}
-  - {fileID: 114251966015225014}
-  - {fileID: 114752956813250222}
-  - {fileID: 114199146411013668}
-  - {fileID: 114325406686987688}
-  - {fileID: 114019249862182896}
-  - {fileID: 114474916968372502}
-  - {fileID: 114286539174112366}
-  - {fileID: 114821195563745460}
-  - {fileID: 114883629226283246}
-  - {fileID: 114411619757625974}
-  - {fileID: 114014872230612382}
-  - {fileID: 114803288745954552}
-  - {fileID: 114176432743482638}
-  - {fileID: 114901872886849086}
-  - {fileID: 114067714423862652}
-  - {fileID: 114033899692269698}
-  - {fileID: 114342273674411310}
-  - {fileID: 114167735375894010}
-  - {fileID: 114036387317597170}
-  - {fileID: 114303392846827966}
-  - {fileID: 114460996221865060}
-  - {fileID: 114102535604080288}
-  - {fileID: 114445434260764786}
-  - {fileID: 114057226944710066}
-  - {fileID: 114824543424761032}
-  - {fileID: 114935385881625036}
-  - {fileID: 114948747897285194}
-  - {fileID: 114240635540455500}
-  SettingsPagePrefab: {fileID: 114712749345563536, guid: 1b843eeefe8047e48a52be3452fb5133,
-    type: 2}
 --- !u!114 &114196963766667982
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -14345,7 +14335,7 @@ MonoBehaviour:
   InteractAction:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114191540430998980}
+      - m_Target: {fileID: 0}
         m_MethodName: Apply
         m_Mode: 1
         m_Arguments:

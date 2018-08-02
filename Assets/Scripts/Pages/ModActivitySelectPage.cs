@@ -1,20 +1,24 @@
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ModBundleSelectPage : MonoBehaviour
+public class ModActivitySelectPage : MonoBehaviour
 {
-    public ModBundleInfoPage InfoPagePrefab = null;
+    //public ModActivityInfoPage InfoPagePrefab = null;
 
     public UIElement PreviousButton = null;
     public UIElement NextButton = null;
 
     public UIElement[] Options = null;
 
+    public Color EnabledColor = Color.white;
+    public Color DisabledColor = Color.white;
+
     private int TotalPageCount
     {
         get
         {
-            return ((_modWrappers.Length - 1) / Options.Length) + 1;
+            return ((_mods.Length - 1) / Options.Length) + 1;
         }
     }
 
@@ -42,7 +46,7 @@ public class ModBundleSelectPage : MonoBehaviour
         }
     }
 
-    private ModSelectorService.ModWrapper[] _modWrappers = null;
+    private KeyValuePair<string, string>[] _mods = null;
     private int _pageIndex = 0;
     private Page _page = null;
 
@@ -55,10 +59,10 @@ public class ModBundleSelectPage : MonoBehaviour
             int localOptionIndex = optionIndex;
 
             KMSelectable selectable = Options[optionIndex].GetComponent<KMSelectable>();
-            selectable.OnInteract += delegate()
+            selectable.OnInteract += delegate ()
             {
-                _page.GetPageWithComponent(InfoPagePrefab).ModWrapper = _modWrappers[OptionOffset + localOptionIndex];
-                _page.GoToPage(InfoPagePrefab);
+                //_page.GetPageWithComponent(InfoPagePrefab).ModWrapper = _mods[OptionOffset + localOptionIndex];
+                //_page.GoToPage(InfoPagePrefab);
                 return true;
             };
         }
@@ -71,15 +75,17 @@ public class ModBundleSelectPage : MonoBehaviour
             return;
         }
 
-        _modWrappers = ModSelectorService.Instance.GetModWrappers().ToArray();
-        System.Array.Sort(_modWrappers, (x, y) => string.Compare(x.ModTitle.Replace("The ", ""), y.ModTitle.Replace("The ", "")));
+        //Detailed information is not automatically updated all the time - do it here now
+        ProfileManager.UpdateProfileSelectionDetails();
+
+        _mods = ModSelectorService.Instance.GetAllModNamesAndDisplayNames().OrderBy((x) => ProfileManager.ActiveDisableSet.Contains(x.Key)).ThenBy((y) => y.Value.Replace("The ", "")).ToArray();
 
         SetPage(0);
     }
 
     public void SetPage(int pageIndex)
     {
-        if (_modWrappers == null)
+        if (_mods == null)
         {
             return;
         }
@@ -91,10 +97,11 @@ public class ModBundleSelectPage : MonoBehaviour
             UIElement option = Options[optionIndex];
             int trueOptionIndex = OptionOffset + optionIndex;
 
-            if (trueOptionIndex < _modWrappers.Length)
+            if (trueOptionIndex < _mods.Length)
             {
                 option.gameObject.SetActive(true);
-                option.Text = _modWrappers[trueOptionIndex].ModTitle;
+                option.Text = _mods[trueOptionIndex].Value;
+                option.BackgroundHighlight.UnselectedColor = ProfileManager.ActiveDisableSet.Contains(_mods[trueOptionIndex].Key) ? DisabledColor : EnabledColor;
             }
             else
             {
@@ -102,7 +109,7 @@ public class ModBundleSelectPage : MonoBehaviour
             }
         }
 
-        _page.HeaderText = string.Format("<b>Select Mod For Info...</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
+        _page.HeaderText = string.Format("<b>Select Mod For More Activity Info...</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
 
         if (PreviousButton != null)
         {

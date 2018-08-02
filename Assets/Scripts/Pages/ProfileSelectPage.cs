@@ -67,7 +67,7 @@ public class ProfileSelectPage : MonoBehaviour
 
     private void OnEnable()
     {
-        _availableProfiles = Profile.AvailableProfiles.OrderBy((x) => -(int)(x.Value.Operation)).ThenBy((y) => y.Key).Select((z) => z.Value).ToArray();
+        _availableProfiles = ProfileManager.AvailableProfiles.OrderBy((x) => -(int)(x.Value.Operation)).ThenBy((y) => y.Key).Select((z) => z.Value).ToArray();
 
         SetPage(0);
     }

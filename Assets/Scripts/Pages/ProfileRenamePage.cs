@@ -168,7 +168,7 @@ public class ProfileRenamePage : MonoBehaviour
 
     public void Apply()
     {
-        if (string.IsNullOrEmpty(Filename) || !Profile.CanCreateProfile(Filename))
+        if (string.IsNullOrEmpty(Filename) || !ProfileManager.CanCreateProfile(Filename))
         {
             Toast.QueueMessage(string.Format("Cannot rename profile to <i>'{0}'</i>.", Filename));
             return;

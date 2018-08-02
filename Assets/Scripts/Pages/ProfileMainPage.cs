@@ -4,7 +4,7 @@ public class ProfileMainPage : MonoBehaviour
 {
     public void ReloadProfiles()
     {
-        Profile.ReloadActiveConfiguration();
+        ProfileManager.ReloadActiveConfiguration();
         Toast.QueueMessage("Profiles reloaded.");
     }
 

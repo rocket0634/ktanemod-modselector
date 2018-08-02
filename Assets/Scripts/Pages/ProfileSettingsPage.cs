@@ -6,6 +6,7 @@ using UnityEngine;
 public class ProfileSettingsPage : MonoBehaviour
 {
     public ModTogglePage ModTogglePagePrefab = null;
+    public ProfileCopyPage CopyPagePrefab = null;
     public ProfileRenamePage RenamePagePrefab = null;
     public ProfileConfirmDeletePage ConfirmDeletePagePrefab = null;
 
@@ -50,7 +51,7 @@ public class ProfileSettingsPage : MonoBehaviour
         ModTogglePage modTogglePage = _page.GetPageWithComponent(ModTogglePagePrefab);
         modTogglePage.Profile = Profile;
         modTogglePage.ModType = ModSelectorService.ModType.SolvableModule;
-        modTogglePage.Entries = ModSelectorService.Instance.AllSolvableModules.Select((x) => new KeyValuePair<string, string>(x.ModuleType, x.ModuleName)).ToArray();
+        modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.SolvableModule).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
         modTogglePage.SetPage(0);
@@ -62,7 +63,7 @@ public class ProfileSettingsPage : MonoBehaviour
         ModTogglePage modTogglePage = _page.GetPageWithComponent(ModTogglePagePrefab);
         modTogglePage.Profile = Profile;
         modTogglePage.ModType = ModSelectorService.ModType.NeedyModule;
-        modTogglePage.Entries = ModSelectorService.Instance.AllNeedyModules.Select((x) => new KeyValuePair<string, string>(x.ModuleType, x.ModuleName)).ToArray();
+        modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.NeedyModule).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
         modTogglePage.SetPage(0);
@@ -74,7 +75,7 @@ public class ProfileSettingsPage : MonoBehaviour
         ModTogglePage modTogglePage = _page.GetPageWithComponent(ModTogglePagePrefab);
         modTogglePage.Profile = Profile;
         modTogglePage.ModType = ModSelectorService.ModType.Bomb;
-        modTogglePage.Entries = ModSelectorService.Instance.AllBombMods.Select((x) => new KeyValuePair<string, string>(x.name, x.name)).ToArray();
+        modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.Bomb).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
         modTogglePage.SetPage(0);
@@ -86,7 +87,7 @@ public class ProfileSettingsPage : MonoBehaviour
         ModTogglePage modTogglePage = _page.GetPageWithComponent(ModTogglePagePrefab);
         modTogglePage.Profile = Profile;
         modTogglePage.ModType = ModSelectorService.ModType.GameplayRoom;
-        modTogglePage.Entries = ModSelectorService.Instance.AllGameplayRoomMods.Select((x) => new KeyValuePair<string, string>(x.name, x.name)).ToArray();
+        modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.GameplayRoom).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
         modTogglePage.SetPage(0);
@@ -98,7 +99,7 @@ public class ProfileSettingsPage : MonoBehaviour
         ModTogglePage modTogglePage = _page.GetPageWithComponent(ModTogglePagePrefab);
         modTogglePage.Profile = Profile;
         modTogglePage.ModType = ModSelectorService.ModType.Widget;
-        modTogglePage.Entries = ModSelectorService.Instance.AllWidgetMods.Select((x) => new KeyValuePair<string, string>(x.name, x.name)).ToArray();
+        modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.Widget).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
         modTogglePage.SetPage(0);
@@ -110,32 +111,36 @@ public class ProfileSettingsPage : MonoBehaviour
         ModTogglePage modTogglePage = _page.GetPageWithComponent(ModTogglePagePrefab);
         modTogglePage.Profile = Profile;
         modTogglePage.ModType = ModSelectorService.ModType.Service;
-        modTogglePage.Entries = ModSelectorService.Instance.AllServices.Select((x) => new KeyValuePair<string, string>(x.ServiceName, x.ServiceName)).ToArray();
+        modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.Service).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
         modTogglePage.SetPage(0);
         _page.GoToPage(ModTogglePagePrefab);
     }
 
-    public void ToggleSetOperation()
+    public void CycleSetOperation()
     {
         switch (Profile.Operation)
         {
-            case Profile.SetOperation.Intersect:
-                Profile.SetSetOperation(Profile.SetOperation.Union);
+            case Profile.SetOperation.Expert:
+                Profile.SetSetOperation(Profile.SetOperation.Defuser);
                 break;
-            case Profile.SetOperation.Union:
-                Profile.SetSetOperation(Profile.SetOperation.Intersect);
+            case Profile.SetOperation.Defuser:
+                Profile.SetSetOperation(Profile.SetOperation.Expert);
                 break;
 
             default:
                 break;
         }
 
-
-
         SetOperationSelectable.BackgroundHighlight.UnselectedColor = Profile.Operation.GetColor();
         SetOperationSelectable.Text = GetSetOperationString();
+    }
+
+    public void Copy()
+    {
+        _page.GetPageWithComponent(CopyPagePrefab).Profile = Profile;
+        _page.GoToPage(CopyPagePrefab);
     }
 
     public void Rename()
@@ -170,11 +175,11 @@ public class ProfileSettingsPage : MonoBehaviour
             string explanation = null;
             switch (Profile.Operation)
             {
-                case Profile.SetOperation.Intersect:
-                    explanation = "<b>Intersect</b> <i>(will disable elements if other active profiles disable also)</i>";
+                case Profile.SetOperation.Expert:
+                    explanation = "<b>Experting</b> <i>(Include/exclude with other experting profiles)</i>";
                     break;
-                case Profile.SetOperation.Union:
-                    explanation = "<b>Union</b> <i>(will always disable elements)</i>";
+                case Profile.SetOperation.Defuser:
+                    explanation = "<b>Defusing</b> <i>(Force include/exclude)</i>";
                     break;
 
                 default:

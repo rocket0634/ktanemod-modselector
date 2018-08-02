@@ -10,95 +10,35 @@ public class Profile
     public enum SetOperation
     {
         [ColorAttribute(1.0f, 0.95f, 0.85f, 1.0f)]
-        Intersect,
+        Expert,
         [ColorAttribute(0.9f, 1.0f, 0.85f, 1.0f)]
-        Union
+        Defuser,
+    }
+
+    public enum EnableFlag
+    {
+        ForceEnabled,
+        Enabled,
+        ForceDisabled
     }
 
     [Serializable]
     public class NewJSON
     {
+        public List<string> EnabledList = new List<string>();
         public List<string> DisabledList = new List<string>();
-        public SetOperation Operation = SetOperation.Intersect;
-    }
+        public SetOperation Operation = SetOperation.Expert;
+    }    
 
-    static Profile()
+    public Profile(string filename, bool createNew = false)
     {
-        RefreshFiles(false);
-
-        _profilesDirectoryWatcher = new FileSystemWatcher();
-        _profilesDirectoryWatcher.Path = ProfileDirectory;
-        _profilesDirectoryWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
-        _profilesDirectoryWatcher.Filter = "*.*";
-
-        _profilesDirectoryWatcher.Created += OnFileCreated;
-        _profilesDirectoryWatcher.Changed += OnFileChanged;
-        _profilesDirectoryWatcher.Deleted += OnFileDeleted;
-        _profilesDirectoryWatcher.Renamed += OnFileRenamed;
-
-        _profilesDirectoryWatcher.EnableRaisingEvents = true;
-    }
-
-    private static void OnFileCreated(object sender, FileSystemEventArgs e)
-    {
-        string extension = Path.GetExtension(e.FullPath);
-        if (!extension.Equals(Extension))
-        {
-            return;
-        }
-
-        string profileName = Path.GetFileNameWithoutExtension(e.FullPath);
-        if (!AvailableProfiles.ContainsKey(profileName))
-        {
-            AvailableProfiles[profileName] = new Profile(e.FullPath);
-        }
-
-        ReloadActiveConfiguration();
-    }
-
-    private static void OnFileChanged(object sender, FileSystemEventArgs e)
-    {
-        string profileName = Path.GetFileNameWithoutExtension(e.FullPath);
-
-        Profile profile = null;
-        if (AvailableProfiles.TryGetValue(profileName, out profile))
-        {
-            profile.Reload();
-        }
-
-        ReloadActiveConfiguration();
-    }
-
-    private static void OnFileDeleted(object sender, FileSystemEventArgs e)
-    {
-        string profileName = Path.GetFileNameWithoutExtension(e.FullPath);
-        AvailableProfiles.Remove(profileName);
-
-        ReloadActiveConfiguration();
-    }
-
-    private static void OnFileRenamed(object sender, RenamedEventArgs e)
-    {
-        string oldProfileName = Path.GetFileNameWithoutExtension(e.FullPath);
-        AvailableProfiles.Remove(oldProfileName);
-
-        string profileName = Path.GetFileNameWithoutExtension(e.FullPath);
-        if (!AvailableProfiles.ContainsKey(profileName))
-        {
-            AvailableProfiles[profileName] = new Profile(e.FullPath);
-        }
-
-        ReloadActiveConfiguration();
-    }
-
-    private Profile(string filename, bool createNew = false)
-    {
-        DisabledList = new List<string>();
+        EnabledList = new HashSet<string>();
+        DisabledList = new HashSet<string>();
         Filename = filename;
 
         if (createNew)
         {
-            Create();
+            Save();
         }
         else
         {
@@ -108,17 +48,11 @@ public class Profile
 
     #region Constants/Readonly
     public static readonly string ProfileDirectory = Path.Combine(Application.persistentDataPath, "ModProfiles");
-
-    private static readonly string Extension = ".json";
-    private static readonly string DefaultPath = Path.Combine(Application.persistentDataPath, "disabledMods.json");
-    private static readonly string ActiveConfiguration = Path.Combine(Application.persistentDataPath, "modSelectorConfig.json");
+    public static readonly string Extension = ".json";
+    public static readonly string DefaultPath = Path.Combine(Application.persistentDataPath, "disabledMods.json");
     #endregion
 
     #region Public Fields/Properties
-    public static readonly List<Profile> ActiveProfiles = new List<Profile>();
-
-    public static readonly Dictionary<string, Profile> AvailableProfiles = new Dictionary<string, Profile>();
-
     public string Name
     {
         get
@@ -150,7 +84,13 @@ public class Profile
         }
     }
 
-    public List<string> DisabledList
+    public HashSet<string> EnabledList
+    {
+        get;
+        private set;
+    }
+
+    public HashSet<string> DisabledList
     {
         get;
         private set;
@@ -163,143 +103,11 @@ public class Profile
     }
     #endregion
 
-    #region Private Fields
-    static FileSystemWatcher _profilesDirectoryWatcher = null;
-    #endregion
-
-    #region Public Methods
-    public static bool CanCreateProfile(string profileName)
-    {
-        EnsureProfileDirectory();
-
-        string filename = string.Format("{0}{1}", profileName, Extension);
-        return !File.Exists(Path.Combine(ProfileDirectory, filename));
-    }
-
-    public static Profile CreateProfile(string profileName)
-    {
-        return new Profile(string.Format("{0}{1}", profileName, Extension), true);
-    }
-
-    public static void RefreshFiles(bool andReloadActiveConfiguration = true)
-    {
-        EnsureProfileDirectory();
-
-        if (File.Exists(DefaultPath))
-        {
-            File.Move(DefaultPath, Path.Combine(ProfileDirectory, "Default.json"));
-        }
-
-        string[] files = Directory.GetFiles(ProfileDirectory);
-        foreach (string file in files)
-        {
-            string extension = Path.GetExtension(file);
-            if (!extension.Equals(Extension))
-            {
-                continue;
-            }
-
-            string profileName = Path.GetFileNameWithoutExtension(file);
-            if (!AvailableProfiles.ContainsKey(profileName))
-            {
-                AvailableProfiles[profileName] = new Profile(file);
-            }
-        }
-
-        ReloadActiveConfiguration();
-    }
-
-    private static object _lockObject = new object();
-
-    public static void UpdateProfileSelection(bool andSave = false)
-    {
-        lock (_lockObject)
-        {
-            Debug.Log("Updating mod selector disable list...");
-
-            ModSelectorService.Instance.EnableAll();
-
-            if (ActiveProfiles.Count == 0)
-            {
-                if (andSave)
-                {
-                    SaveActiveConfiguration();
-                }
-
-                return;
-            }
-
-            HashSet<string> profileMergeSet = new HashSet<string>();
-            Profile[] intersects = ActiveProfiles.Where((x) => x.Operation == SetOperation.Intersect).ToArray();
-            if (intersects.Length > 0)
-            {
-                profileMergeSet.UnionWith(intersects[0].DisabledList);
-                for (int intersectProfileIndex = 1; intersectProfileIndex < intersects.Length; ++intersectProfileIndex)
-                {
-                    profileMergeSet.IntersectWith(intersects[intersectProfileIndex].DisabledList);
-                }
-            }
-
-            foreach (Profile union in ActiveProfiles.Where((x) => x.Operation == SetOperation.Union))
-            {
-                profileMergeSet.UnionWith(union.DisabledList);
-            }
-
-            foreach (string modObjectName in profileMergeSet)
-            {
-                Debug.LogFormat("Disabling {0}.", modObjectName);
-                ModSelectorService.Instance.Disable(modObjectName);
-            }
-
-            if (andSave)
-            {
-                SaveActiveConfiguration();
-            }
-        }
-    }
-
-    public static void ReloadActiveConfiguration()
-    {
-        try
-        {
-            string jsonInput = File.ReadAllText(ActiveConfiguration);
-            List<string> activeProfileNames = JsonConvert.DeserializeObject<List<string>>(jsonInput);
-            ActiveProfiles.Clear();
-
-            foreach (string profileName in activeProfileNames)
-            {
-                Profile profile;
-                if (AvailableProfiles.TryGetValue(profileName, out profile))
-                {
-                    ActiveProfiles.Add(profile);
-                }
-            }
-
-            UpdateProfileSelection();
-        }
-        catch (Exception ex)
-        {
-            Debug.LogException(ex);
-        }
-    }
-
-    public static void SaveActiveConfiguration()
-    {
-        try
-        {
-            string jsonOutput = JsonConvert.SerializeObject(ActiveProfiles.Select((x) => x.Name).ToArray());
-            File.WriteAllText(ActiveConfiguration, jsonOutput);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogException(ex);
-        }
-    }
-
+    #region Public Methods    
     public void SetSetOperation(SetOperation operation, bool andSave = true)
     {
         Operation = operation;
-        UpdateProfileSelection();
+        ProfileManager.UpdateProfileSelection();
 
         if (andSave)
         {
@@ -307,15 +115,26 @@ public class Profile
         }
     }
 
-    public bool IsEnabled(string modObjectName)
+    public EnableFlag GetEnabledFlag(string modObjectName)
     {
-        return !DisabledList.Contains(modObjectName);
+        if (EnabledList.Contains(modObjectName))
+        {
+            return EnableFlag.ForceEnabled;
+        }
+        if (DisabledList.Contains(modObjectName))
+        {
+            return EnableFlag.ForceDisabled;
+        }
+
+        return EnableFlag.Enabled;
     }
 
-    public void EnableAll(bool save = true)
+    public void ClearAll(bool save = true)
     {
+        EnabledList.Clear();
         DisabledList.Clear();
-        UpdateProfileSelection();
+
+        ProfileManager.UpdateProfileSelection();
 
         if (save)
         {
@@ -323,18 +142,11 @@ public class Profile
         }
     }
 
-    public void DisableAll(bool save = true)
+    public void ForceEnableAll(bool save = true)
     {
         DisabledList.Clear();
-        UpdateProfileSelection();
-
-        ModSelectorService modSelector = ModSelectorService.Instance;
-        DisabledList.AddRange(modSelector.GetModNames(ModSelectorService.ModType.SolvableModule));
-        DisabledList.AddRange(modSelector.GetModNames(ModSelectorService.ModType.NeedyModule));
-        DisabledList.AddRange(modSelector.GetModNames(ModSelectorService.ModType.Bomb));
-        DisabledList.AddRange(modSelector.GetModNames(ModSelectorService.ModType.GameplayRoom));
-        DisabledList.AddRange(modSelector.GetModNames(ModSelectorService.ModType.Widget));
-        DisabledList.AddRange(modSelector.GetModNames(ModSelectorService.ModType.Service));
+        EnabledList.UnionWith(ModSelectorService.Instance.GetAllModNames());
+        ProfileManager.UpdateProfileSelection();
 
         if (save)
         {
@@ -342,10 +154,42 @@ public class Profile
         }
     }
 
-    public void EnableAllOfType(ModSelectorService.ModType modType, bool save = true)
+    public void ForceDisableAll(bool save = true)
     {
-        DisabledList = DisabledList.Except(ModSelectorService.Instance.GetModNames(modType)).ToList();
-        UpdateProfileSelection();
+        EnabledList.Clear();
+        DisabledList.UnionWith(ModSelectorService.Instance.GetAllModNames());
+
+        ProfileManager.UpdateProfileSelection();
+
+        if (save)
+        {
+            Save();
+        }
+    }
+
+    public void ClearAllOfType(ModSelectorService.ModType modType, bool save = true)
+    {
+        string[] modNames = ModSelectorService.Instance.GetModNames(modType).ToArray();
+
+        EnabledList.ExceptWith(modNames);
+        DisabledList.ExceptWith(modNames);
+
+        ProfileManager.UpdateProfileSelection();
+
+        if (save)
+        {
+            Save();
+        }
+    }
+
+    public void ForceEnableAllOfType(ModSelectorService.ModType modType, bool save = true)
+    {
+        string[] modNames = ModSelectorService.Instance.GetModNames(modType).ToArray();
+
+        EnabledList.UnionWith(modNames);
+        DisabledList.ExceptWith(modNames);
+
+        ProfileManager.UpdateProfileSelection();
         
         if (save)
         {
@@ -353,10 +197,14 @@ public class Profile
         }
     }
 
-    public void DisableAllOfType(ModSelectorService.ModType modType, bool save = true)
+    public void ForceDisableAllOfType(ModSelectorService.ModType modType, bool save = true)
     {
-        DisabledList = DisabledList.Union(ModSelectorService.Instance.GetModNames(modType)).ToList();
-        UpdateProfileSelection();
+        string[] modNames = ModSelectorService.Instance.GetModNames(modType).ToArray();
+
+        DisabledList.UnionWith(modNames);
+        EnabledList.ExceptWith(modNames);
+
+        ProfileManager.UpdateProfileSelection();
 
         if (save)
         {
@@ -364,12 +212,14 @@ public class Profile
         }
     }
 
-    public void Enable(string modObjectName, bool save = true)
+    public void Clear(string modObjectName, bool save = true)
     {
-        if (!IsEnabled(modObjectName))
+        if (GetEnabledFlag(modObjectName) != EnableFlag.Enabled)
         {
             DisabledList.Remove(modObjectName);
-            UpdateProfileSelection();
+            EnabledList.Remove(modObjectName);
+
+            ProfileManager.UpdateProfileSelection();
 
             if (save)
             {
@@ -378,12 +228,30 @@ public class Profile
         }
     }
 
-    public void Disable(string modObjectName, bool save = true)
+    public void ForceEnable(string modObjectName, bool save = true)
     {
-        if (IsEnabled(modObjectName))
+        if (GetEnabledFlag(modObjectName) != EnableFlag.ForceEnabled)
+        {
+            EnabledList.Add(modObjectName);
+            DisabledList.Remove(modObjectName);
+
+            ProfileManager.UpdateProfileSelection();
+
+            if (save)
+            {
+                Save();
+            }
+        }
+    }
+
+    public void ForceDisable(string modObjectName, bool save = true)
+    {
+        if (GetEnabledFlag(modObjectName) != EnableFlag.ForceDisabled)
         {
             DisabledList.Add(modObjectName);
-            UpdateProfileSelection();
+            EnabledList.Remove(modObjectName);
+
+            ProfileManager.UpdateProfileSelection();
 
             if (save)
             {
@@ -392,20 +260,34 @@ public class Profile
         }
     }
 
-    public int GetTotalOfType(ModSelectorService.ModType modType)
+    public static int GetTotalOfType(ModSelectorService.ModType modType)
     {
         return ModSelectorService.Instance.GetModNames(modType).Count();
+    }
+
+    public int GetTotalOfType(ModSelectorService.ModType modType, EnableFlag enableFlag)
+    {
+        IEnumerable<string> modNames = ModSelectorService.Instance.GetModNames(modType);
+
+        switch (enableFlag)
+        {
+            case EnableFlag.ForceEnabled:
+                return EnabledList.Intersect(modNames).Count();
+
+            case EnableFlag.ForceDisabled:
+                return DisabledList.Intersect(modNames).Count();
+
+            case EnableFlag.Enabled:
+                return modNames.Except(EnabledList.Union(DisabledList)).Count();
+
+            default:
+                return modNames.Except(EnabledList.Union(DisabledList)).Count();
+        }
     }
 
     public int GetDisabledTotalOfType(ModSelectorService.ModType modType)
     {
         return DisabledList.Intersect(ModSelectorService.Instance.GetModNames(modType)).Count();
-    }
-
-    public void Create()
-    {
-        Save();
-        AvailableProfiles[Name] = this;
     }
 
     public void Reload()
@@ -421,7 +303,8 @@ public class Profile
                 NewJSON newJSON = JsonConvert.DeserializeObject<NewJSON>(jsonInput);
                 if (newJSON != null)
                 {
-                    DisabledList = newJSON.DisabledList;
+                    EnabledList = new HashSet<string>(newJSON.EnabledList);
+                    DisabledList = new HashSet<string>(newJSON.DisabledList);
                     Operation = newJSON.Operation;
                     return;
                 }
@@ -430,8 +313,8 @@ public class Profile
             {
                 try
                 {
-                    DisabledList = JsonConvert.DeserializeObject<List<string>>(jsonInput);
-                    Operation = SetOperation.Intersect;
+                    DisabledList = new HashSet<string>(JsonConvert.DeserializeObject<List<string>>(jsonInput));
+                    Operation = SetOperation.Expert;
                 }
                 catch (Exception ex3)
                 {
@@ -451,7 +334,7 @@ public class Profile
         {
             EnsureProfileDirectory();
 
-            NewJSON jsonStructure = new NewJSON() { DisabledList = DisabledList, Operation = Operation };
+            NewJSON jsonStructure = new NewJSON() { EnabledList = new List<string>(EnabledList), DisabledList = new List<string>(DisabledList), Operation = Operation };
 
             string jsonOutput = JsonConvert.SerializeObject(jsonStructure);
             File.WriteAllText(FullPath, jsonOutput);
@@ -473,17 +356,28 @@ public class Profile
 
             Filename = string.Format("{0}{1}", newName, Extension);
 
-            AvailableProfiles.Remove(oldName);
-            AvailableProfiles[Name] = this;
+            ProfileManager.AvailableProfiles.Remove(oldName);
+            ProfileManager.AvailableProfiles[Name] = this;
 
             File.Move(oldPath, FullPath);
 
-            UpdateProfileSelection(true);
+            ProfileManager.UpdateProfileSelection(true);
         }
         catch (Exception ex)
         {
             Debug.LogException(ex);
         }
+    }
+
+    public Profile Copy(string newName)
+    {
+        Profile newProfile = new Profile(string.Format("{0}{1}", newName, Extension), true);
+        newProfile.EnabledList = new HashSet<string>(EnabledList);
+        newProfile.DisabledList = new HashSet<string>(DisabledList);
+        newProfile.Operation = Operation;
+        newProfile.Save();
+
+        return newProfile;       
     }
 
     public void Delete()
@@ -492,12 +386,12 @@ public class Profile
         {
             EnsureProfileDirectory();
 
-            AvailableProfiles.Remove(Name);
-            ActiveProfiles.Remove(this);
+            ProfileManager.AvailableProfiles.Remove(Name);
+            ProfileManager.ActiveProfiles.Remove(this);
 
             File.Delete(FullPath);
 
-            UpdateProfileSelection(true);
+            ProfileManager.UpdateProfileSelection(true);
         }
         catch (Exception ex)
         {
