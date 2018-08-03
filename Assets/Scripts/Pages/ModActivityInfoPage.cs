@@ -17,6 +17,11 @@ public class ModActivityInfoPage : MonoBehaviour
 
     public void OnEnable()
     {
+        if (ModNameAndDisplayName.Key == null || ModNameAndDisplayName.Value == null)
+        {
+            return;
+        }
+
         _page.HeaderText = string.Format("<b>{0}</b>\n<size=16>Active Profile Configuration</size>", ModNameAndDisplayName.Value == null ? "**NULL**" : ModNameAndDisplayName.Value);
 
         if (DetailText == null)
@@ -25,7 +30,7 @@ public class ModActivityInfoPage : MonoBehaviour
         }
 
         List<ProfileManager.ProfileEntry> profileEntries = null;
-        if (!ProfileManager.ActiveProfilesEntries.TryGetValue(ModNameAndDisplayName.Key, out profileEntries))
+        if (!ProfileManager.ActiveProfilesEntries.TryGetValue(ModNameAndDisplayName.Key, out profileEntries) || profileEntries == null || profileEntries.Count == 0)
         {
             DetailText.text = "<i>Not referenced in any active profiles.</i>";
             return;
