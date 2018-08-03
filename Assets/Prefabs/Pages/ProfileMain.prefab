@@ -349,7 +349,7 @@ GameObject:
   - component: {fileID: 114011834776887234}
   - component: {fileID: 114659124367793916}
   m_Layer: 0
-  m_Name: View Active Mods
+  m_Name: View Enabled/Disabled Mods
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2378,7 +2378,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1764949200141098}
-  m_Text: View Active Mods
+  m_Text: View Enabled/Disabled Mods
   m_OffsetZ: 0
   m_CharacterSize: 22
   m_LineSpacing: 1
@@ -3192,7 +3192,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d810901d26957b340bc3f4f2a6365fb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Text: View Active Mods
+  Text: View Enabled/Disabled Mods
   Icon: {fileID: 2800000, guid: 4ddb41b2aeefc51468e39d8c6e96f3a7, type: 3}
   DisabledIcon: {fileID: 0}
   TextRenderer: {fileID: 102240984803781688}

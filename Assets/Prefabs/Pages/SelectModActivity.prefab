@@ -11706,7 +11706,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1932017117328670}
-  m_Text: '<b>Select Mod For More Activity Info...</b>
+  m_Text: '<b>Enabled/Disabled Mods</b>
 
     <size=16>Page 1 of 1</size>'
   m_OffsetZ: 0
@@ -12758,6 +12758,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1730884c51cce9f4eafb923bebb7e7c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  InfoPagePrefab: {fileID: 114661924388843334, guid: 26c4f376002c95c48a844feb1682e298,
+    type: 2}
   PreviousButton: {fileID: 114652891157841136}
   NextButton: {fileID: 114808280235637732}
   Options:
@@ -14102,7 +14104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 093beb22069ea184b994dc572c5d5519, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HeaderText: '<b>Select Mod For More Activity Info...</b>
+  HeaderText: '<b>Enabled/Disabled Mods</b>
 
     <size=16>Page 1 of 1</size>'
   HeaderRenderer: {fileID: 102135166345560402}

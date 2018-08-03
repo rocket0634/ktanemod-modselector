@@ -3,8 +3,8 @@ using System.Linq;
 using UnityEngine;
 
 public class ModActivitySelectPage : MonoBehaviour
-{
-    //public ModActivityInfoPage InfoPagePrefab = null;
+{ 
+    public ModActivityInfoPage InfoPagePrefab = null;
 
     public UIElement PreviousButton = null;
     public UIElement NextButton = null;
@@ -61,8 +61,8 @@ public class ModActivitySelectPage : MonoBehaviour
             KMSelectable selectable = Options[optionIndex].GetComponent<KMSelectable>();
             selectable.OnInteract += delegate ()
             {
-                //_page.GetPageWithComponent(InfoPagePrefab).ModWrapper = _mods[OptionOffset + localOptionIndex];
-                //_page.GoToPage(InfoPagePrefab);
+                _page.GetPageWithComponent(InfoPagePrefab).ModNameAndDisplayName = _mods[OptionOffset + localOptionIndex];
+                _page.GoToPage(InfoPagePrefab);
                 return true;
             };
         }
@@ -109,7 +109,7 @@ public class ModActivitySelectPage : MonoBehaviour
             }
         }
 
-        _page.HeaderText = string.Format("<b>Select Mod For More Activity Info...</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
+        _page.HeaderText = string.Format("<b>Enabled/Disabled Mods</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
 
         if (PreviousButton != null)
         {

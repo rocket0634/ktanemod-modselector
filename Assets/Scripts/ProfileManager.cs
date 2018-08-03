@@ -228,7 +228,7 @@ public static class ProfileManager
         {
             foreach (string modName in profile.EnabledList)
             {
-                List<ProfileEntry> entries = new List<ProfileEntry>();
+                List<ProfileEntry> entries = null;
                 if (!ActiveProfilesEntries.TryGetValue(modName, out entries))
                 {
                     entries = new List<ProfileEntry>();
@@ -240,7 +240,7 @@ public static class ProfileManager
 
             foreach (string modName in profile.DisabledList)
             {
-                List<ProfileEntry> entries = new List<ProfileEntry>();
+                List<ProfileEntry> entries = null;
                 if (!ActiveProfilesEntries.TryGetValue(modName, out entries))
                 {
                     entries = new List<ProfileEntry>();
