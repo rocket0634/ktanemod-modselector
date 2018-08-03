@@ -17,7 +17,7 @@ public class ModActivityInfoPage : MonoBehaviour
 
     public void OnEnable()
     {
-        _page.HeaderText = string.Format("<b>{0}</b>\n<size=16Active Profile Configuration</size>", ModNameAndDisplayName.Value == null ? "**NULL**" : ModNameAndDisplayName.Value);
+        _page.HeaderText = string.Format("<b>{0}</b>\n<size=16>Active Profile Configuration</size>", ModNameAndDisplayName.Value == null ? "**NULL**" : ModNameAndDisplayName.Value);
 
         if (DetailText == null)
         {
