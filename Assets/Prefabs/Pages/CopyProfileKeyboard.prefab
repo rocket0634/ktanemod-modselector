@@ -1855,7 +1855,7 @@ GameObject:
   - component: {fileID: 114963917131836146}
   - component: {fileID: 114707241366223718}
   m_Layer: 0
-  m_Name: Rename
+  m_Name: Copy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10012,7 +10012,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1673029717300692}
-  m_Text: Rename
+  m_Text: Copy
   m_OffsetZ: 0
   m_CharacterSize: 14
   m_LineSpacing: 1
@@ -14196,8 +14196,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d810901d26957b340bc3f4f2a6365fb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Text: Rename
-  Icon: {fileID: 2800000, guid: 285ecf578f303b84fb14cd39b099f816, type: 3}
+  Text: Copy
+  Icon: {fileID: 2800000, guid: f7b2546dcd6c1de4d946785b0be77db7, type: 3}
   DisabledIcon: {fileID: 2800000, guid: 30de378e04ed5c443bf25fa9488a7113, type: 3}
   TextRenderer: {fileID: 102808391312671068}
   IconMesh: {fileID: 23090870094229030}
@@ -14207,7 +14207,7 @@ MonoBehaviour:
   InteractAction:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 114384290423679990}
         m_MethodName: Apply
         m_Mode: 1
         m_Arguments:
