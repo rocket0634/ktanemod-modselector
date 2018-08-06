@@ -336,7 +336,7 @@ public class Profile
 
             NewJSON jsonStructure = new NewJSON() { EnabledList = new List<string>(EnabledList), DisabledList = new List<string>(DisabledList), Operation = Operation };
 
-            string jsonOutput = JsonConvert.SerializeObject(jsonStructure);
+            string jsonOutput = JsonConvert.SerializeObject(jsonStructure, Formatting.Indented);
             File.WriteAllText(FullPath, jsonOutput);
         }
         catch (Exception ex)
