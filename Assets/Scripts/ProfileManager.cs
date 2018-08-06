@@ -281,7 +281,7 @@ public static class ProfileManager
     {
         try
         {
-            string jsonOutput = JsonConvert.SerializeObject(ActiveProfiles.Select((x) => x.Name).ToArray());
+            string jsonOutput = JsonConvert.SerializeObject(ActiveProfiles.Select((x) => x.Name).ToArray(), Formatting.Indented);
             File.WriteAllText(ActiveConfiguration, jsonOutput);
         }
         catch (Exception ex)
