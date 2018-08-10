@@ -240,6 +240,11 @@ public static class ProfileManager
         }
     }
 
+    public static IEnumerable<string> GetActiveDisableList(ModSelectorService.ModType modType)
+    {
+        return ActiveDisableSet.Intersect(ModSelectorService.Instance.GetModNames(modType));
+    }
+
     public static void ReloadActiveConfiguration()
     {
         try

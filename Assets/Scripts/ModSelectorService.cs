@@ -329,6 +329,23 @@ public class ModSelectorService : MonoBehaviour
         _properties.Add("AddHomePageMethod", () => (Action<string, KMSelectable, Texture2D>)PageManager.AddHomePageEntry, null);
         _properties.Add("GoToPageMethod", () => (Action<string>)FindObjectOfType<PageNavigation>().GoToPage, null);
         _properties.Add("GoBackMethod", () => (Action)FindObjectOfType<PageNavigation>().GoBack, null);
+
+        _properties.Add("AllMods", () => GetAllModNames(), null);
+        _properties.Add("AllSolvableModules", () => GetModNames(ModType.SolvableModule), null);
+        _properties.Add("AllNeedyModules", () => GetModNames(ModType.NeedyModule), null);
+        _properties.Add("AllBombs", () => GetModNames(ModType.Bomb), null);
+        _properties.Add("AllWidgets", () => GetModNames(ModType.Widget), null);
+        _properties.Add("AllGameplayRooms", () => GetModNames(ModType.GameplayRoom), null);
+        _properties.Add("AllServices", () => GetModNames(ModType.Service), null);
+
+        _properties.Add("DisabledMods", () => ProfileManager.ActiveDisableSet, null);
+        _properties.Add("DisabledSolvableModules", () => ProfileManager.GetActiveDisableList(ModType.SolvableModule), null);
+        _properties.Add("DisabledNeedyModules", () => ProfileManager.GetActiveDisableList(ModType.NeedyModule), null);
+        _properties.Add("DisabledBombs", () => ProfileManager.GetActiveDisableList(ModType.Bomb), null);
+        _properties.Add("DisabledWidgets", () => ProfileManager.GetActiveDisableList(ModType.Widget), null);
+        _properties.Add("DisabledGameplayRooms", () => ProfileManager.GetActiveDisableList(ModType.GameplayRoom), null);
+        _properties.Add("DisabledServices", () => ProfileManager.GetActiveDisableList(ModType.Service), null);
+
         //TOOD: The above is a little nasty, but not too bad yet. If there's more methods to expose, improve this!
 
         PageManager.AddPagePrefabs(PagePrefabs);
