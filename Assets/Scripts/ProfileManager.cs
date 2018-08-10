@@ -167,6 +167,7 @@ public static class ProfileManager
                         SaveActiveConfiguration();
                     }
 
+                    ActiveDisableSet = new HashSet<string>();
                     return;
                 }
 
