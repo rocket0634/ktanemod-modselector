@@ -44,22 +44,18 @@ public class ModActivityInfoPage : MonoBehaviour
             string color = "";
             switch (entry.EnableFlag)
             {
-                case Profile.EnableFlag.ForceEnabled:
+                case Profile.EnableFlag.Enabled:
                     enabled = "Enabled";
                     color = "008800";
                     break;
-                case Profile.EnableFlag.ForceDisabled:
+                case Profile.EnableFlag.Disabled:
                     enabled = "Disabled";
                     color = "880000";
                     break;
-                case Profile.EnableFlag.Enabled:
-                    enabled = "Enabled (not referenced)";
-                    color = "002200";
-                    break;
 
                 default:
-                    enabled = "Enabled (not referenced)";
-                    color = "002200";
+                    enabled = "Enabled";
+                    color = "008800";
                     break;
 
             }

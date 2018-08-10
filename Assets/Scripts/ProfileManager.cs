@@ -162,8 +162,6 @@ public static class ProfileManager
 
                 if (ActiveProfiles.Count == 0)
                 {
-                    ActiveDisableSet = new HashSet<string>();
-
                     if (andSave)
                     {
                         SaveActiveConfiguration();
@@ -172,37 +170,29 @@ public static class ProfileManager
                     return;
                 }
 
-                Profile[] expertProfiles = ActiveProfiles.Where((x) => x.Operation == Profile.SetOperation.Expert).ToArray();
-                Profile[] defuserProfilers = ActiveProfiles.Where((x) => x.Operation == Profile.SetOperation.Defuser).ToArray();
+                HashSet<string> profileMergeSet = new HashSet<string>();
+                Profile[] intersects = ActiveProfiles.Where((x) => x.Operation == Profile.SetOperation.Expert).ToArray();
+                if (intersects.Length > 0)
+                {
+                    profileMergeSet.UnionWith(intersects[0].DisabledList);
+                    for (int intersectProfileIndex = 1; intersectProfileIndex < intersects.Length; ++intersectProfileIndex)
+                    {
+                        profileMergeSet.IntersectWith(intersects[intersectProfileIndex].DisabledList);
+                    }
+                }
 
-                //Get all separate lists
-                HashSet<string>[] allExpertEnabled = expertProfiles.Select((x) => x.EnabledList).ToArray();
-                HashSet<string>[] allExpertDisabled = expertProfiles.Select((x) => x.DisabledList).ToArray();
-                HashSet<string>[] allDefuserEnabled = defuserProfilers.Select((x) => x.EnabledList).ToArray();
-                HashSet<string>[] allDefuserDisabled = defuserProfilers.Select((x) => x.DisabledList).ToArray();
+                foreach (Profile union in ActiveProfiles.Where((x) => x.Operation == Profile.SetOperation.Defuser))
+                {
+                    profileMergeSet.UnionWith(union.DisabledList);
+                }
 
-                //Get expert "common" list for enabled & disabled (where all experting profiles agree enabled/disabled)
-                HashSet<string> expertCommonEnabled = allExpertEnabled.Length > 0 ? allExpertEnabled.Skip(1).Aggregate(
-                    new HashSet<string>(allExpertEnabled.First()),
-                    (h, e) => { h.IntersectWith(e); return h; }
-                ) : new HashSet<string>();
-                HashSet<string> expertCommonDisabled = allExpertDisabled.Length > 0 ? allExpertDisabled.Skip(1).Aggregate(
-                    new HashSet<string>(allExpertDisabled.First()),
-                    (h, e) => { h.IntersectWith(e); return h; }
-                ) : new HashSet<string>();
-
-                //Get defusing "any" list for enabled & disabled (where any defusing profile mentions enabled/disabled)
-                HashSet<string> defuserAnyEnabled = new HashSet<string>(allDefuserEnabled.SelectMany((x) => x).Distinct());
-                HashSet<string> defuserAnyDisabled = new HashSet<string>(allDefuserDisabled.SelectMany((x) => x).Distinct());
-
-                //Do the merge to generate the final merge list  
-                ActiveDisableSet = new HashSet<string>(defuserAnyDisabled.Union(expertCommonDisabled.Except(expertCommonEnabled)).Except(defuserAnyEnabled));
-
-                foreach (string modObjectName in ActiveDisableSet)
+                foreach (string modObjectName in profileMergeSet)
                 {
                     Debug.LogFormat("Disabling {0}.", modObjectName);
                     ModSelectorService.Instance.Disable(modObjectName);
                 }
+
+                ActiveDisableSet = profileMergeSet;
 
                 if (andSave)
                 {
@@ -223,31 +213,28 @@ public static class ProfileManager
 
     public static void UpdateProfileSelectionDetails()
     {
+        string[] modNames = ModSelectorService.Instance.GetAllModNames().ToArray();
+
         ActiveProfilesEntries.Clear();
-        foreach (Profile profile in ActiveProfiles)
+
+        foreach (string modName in modNames)
         {
-            foreach (string modName in profile.EnabledList)
+            List<ProfileEntry> entries = new List<ProfileEntry>();
+            ActiveProfilesEntries[modName] = entries;
+
+            foreach (Profile profile in ActiveProfiles)
             {
-                List<ProfileEntry> entries = null;
-                if (!ActiveProfilesEntries.TryGetValue(modName, out entries))
+                Profile.EnableFlag enableFlag;
+                if (profile.DisabledList.Contains(modName))
                 {
-                    entries = new List<ProfileEntry>();
-                    ActiveProfilesEntries[modName] = entries;
+                    enableFlag = Profile.EnableFlag.Disabled;
+                }
+                else
+                {
+                    enableFlag = Profile.EnableFlag.Enabled;
                 }
 
-                entries.Add(new ProfileEntry() { ProfileName = profile.FriendlyName, SetOperation = profile.Operation, EnableFlag = Profile.EnableFlag.ForceEnabled });
-            }
-
-            foreach (string modName in profile.DisabledList)
-            {
-                List<ProfileEntry> entries = null;
-                if (!ActiveProfilesEntries.TryGetValue(modName, out entries))
-                {
-                    entries = new List<ProfileEntry>();
-                    ActiveProfilesEntries[modName] = entries;
-                }
-
-                entries.Add(new ProfileEntry() { ProfileName = profile.FriendlyName, SetOperation = profile.Operation, EnableFlag = Profile.EnableFlag.ForceDisabled });
+                entries.Add(new ProfileEntry() { ProfileName = profile.FriendlyName, SetOperation = profile.Operation, EnableFlag = enableFlag });
             }
         }
     }

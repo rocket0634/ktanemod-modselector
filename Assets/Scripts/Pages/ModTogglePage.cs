@@ -11,9 +11,6 @@ public class ModTogglePage : MonoBehaviour
     public UIElement PreviousButton = null;
     public UIElement NextButton = null;
 
-    public Texture2D AllowImage = null;
-    public Texture2D DenyImage = null;
-
     private int TotalPageCount
     {
         get
@@ -64,24 +61,14 @@ public class ModTogglePage : MonoBehaviour
             _toggles[toggleIndex].OnToggleChange += delegate (bool toggled)
             {
                 string entry = Entries[ToggleOffset + localToggleIndex].Key;
-                switch (Profile.GetEnabledFlag(entry))
-                {
-                    case Profile.EnableFlag.ForceEnabled:
-                        Profile.ForceDisable(entry);
-                        _toggles[localToggleIndex].Icon = DenyImage;
-                        _toggles[localToggleIndex].IsOn = true;
-                        break;
-                    case Profile.EnableFlag.ForceDisabled:
-                        Profile.Clear(entry);
-                        break;
-                    case Profile.EnableFlag.Enabled:
-                        Profile.ForceEnable(entry);
-                        _toggles[localToggleIndex].Icon = AllowImage;
-                        _toggles[localToggleIndex].IsOn = true;
-                        break;
 
-                    default:
-                        break;
+                if (toggled)
+                {
+                    Profile.Disable(entry);
+                }
+                else
+                {
+                    Profile.Enable(entry);
                 }
             };
         }
@@ -115,12 +102,7 @@ public class ModTogglePage : MonoBehaviour
 
                 switch (Profile.GetEnabledFlag(Entries[trueToggleIndex].Key))
                 {
-                    case Profile.EnableFlag.ForceEnabled:
-                        toggle.Icon = AllowImage;
-                        toggle.IsOn = true;
-                        break;
-                    case Profile.EnableFlag.ForceDisabled:
-                        toggle.Icon = DenyImage;
+                    case Profile.EnableFlag.Disabled:
                         toggle.IsOn = true;
                         break;
                     case Profile.EnableFlag.Enabled:
@@ -152,21 +134,15 @@ public class ModTogglePage : MonoBehaviour
         }
     }
 
-    public void ClearAll()
-    {
-        Profile.ClearAllOfType(ModType);
-        SetPage(_pageIndex);
-    }
-
     public void EnableAll()
     {
-        Profile.ForceEnableAllOfType(ModType);
+        Profile.EnableAllOfType(ModType);
         SetPage(_pageIndex);
     }
 
     public void DisableAll()
     {
-        Profile.ForceDisableAllOfType(ModType);
+        Profile.DisableAllOfType(ModType);
         SetPage(_pageIndex);
     }
 
