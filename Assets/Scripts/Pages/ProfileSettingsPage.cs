@@ -176,10 +176,10 @@ public class ProfileSettingsPage : MonoBehaviour
             switch (Profile.Operation)
             {
                 case Profile.SetOperation.Expert:
-                    explanation = "<b>Experting</b> <i>(Include/exclude with other experting profiles)</i>";
+                    explanation = "<b>Experting</b> <i>(Disable mods if all other experting profiles agree)</i>";
                     break;
                 case Profile.SetOperation.Defuser:
-                    explanation = "<b>Defusing</b> <i>(Force include/exclude)</i>";
+                    explanation = "<b>Defusing</b> <i>(Disable mods regardless of other profiles)</i>";
                     break;
 
                 default:
