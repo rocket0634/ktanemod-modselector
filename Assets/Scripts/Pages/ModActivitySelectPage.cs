@@ -120,6 +120,14 @@ public class ModActivitySelectPage : MonoBehaviour
         {
             NextButton.CanSelect = NextEnabled;
         }
+
+        if (_mods.Length == 0)
+        {
+            KMSelectable pageSelectable = GetComponent<KMSelectable>();
+            pageSelectable.DefaultSelectableIndex = 1;
+            pageSelectable.Reproxy();
+            return;
+        }
     }
 
     public void NextPage()
