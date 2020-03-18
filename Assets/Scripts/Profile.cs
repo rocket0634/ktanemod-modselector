@@ -25,8 +25,10 @@ public class Profile
     public class NewJSON
     {
         public List<string> DisabledList = new List<string>();
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> EnabledList;
         public SetOperation Operation = SetOperation.Expert;
-    }    
+    }
 
     public Profile(string filename, bool createNew = false)
     {
@@ -87,6 +89,12 @@ public class Profile
         private set;
     }
 
+    public HashSet<string> EnabledList
+    {
+        get;
+        private set;
+    }
+
     public SetOperation Operation
     {
         get;
@@ -94,7 +102,7 @@ public class Profile
     }
     #endregion
 
-    #region Public Methods    
+    #region Public Methods
     public void SetSetOperation(SetOperation operation, bool andSave = true)
     {
         Operation = operation;
@@ -233,7 +241,12 @@ public class Profile
                 if (newJSON != null)
                 {
                     DisabledList = new HashSet<string>(newJSON.DisabledList);
+                    if (newJSON.EnabledList != null)
+                    {
+                        EnabledList = new HashSet<string>(newJSON.EnabledList);
+                    }
                     Operation = newJSON.Operation;
+                    UpdateExpertProfile();
                     return;
                 }
             }
@@ -263,6 +276,22 @@ public class Profile
             EnsureProfileDirectory();
 
             NewJSON jsonStructure = new NewJSON() { DisabledList = new List<string>(DisabledList), Operation = Operation };
+
+            if (Operation == SetOperation.Expert)
+            {
+                foreach (string name in ModSelectorService.Instance.GetAllModNames())
+                {
+                    if (DisabledList.Contains(name))
+                    {
+                        EnabledList.Remove(name);
+                    }
+                    else
+                    {
+                        EnabledList.Add(name);
+                    }
+                }
+                jsonStructure.EnabledList = new List<string>(EnabledList);
+            }
 
             string jsonOutput = JsonConvert.SerializeObject(jsonStructure, Formatting.Indented);
             File.WriteAllText(FullPath, jsonOutput);
@@ -304,7 +333,7 @@ public class Profile
         newProfile.Operation = Operation;
         newProfile.Save();
 
-        return newProfile;       
+        return newProfile;
     }
 
     public void Delete()
@@ -323,6 +352,26 @@ public class Profile
         catch (Exception ex)
         {
             Debug.LogException(ex);
+        }
+    }
+
+    public void UpdateExpertProfile()
+    {
+        if (Operation == SetOperation.Expert)
+        {
+            if (EnabledList.Count > 0)
+            {
+                int oldCount = DisabledList.Count;
+                DisabledList.UnionWith(ModSelectorService.Instance.GetAllModNames().Where(s => !EnabledList.Contains(s)));
+                if (DisabledList.Count != oldCount)
+                {
+                    Save();
+                }
+            }
+            else
+            {
+                Save();
+            }
         }
     }
 
