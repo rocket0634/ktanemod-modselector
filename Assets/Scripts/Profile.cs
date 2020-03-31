@@ -279,7 +279,8 @@ public class Profile
 
             if (Operation == SetOperation.Expert)
             {
-                foreach (string name in ModSelectorService.Instance.GetAllModNames())
+                foreach (string name in ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.SolvableModule)
+					.Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule)))
                 {
                     if (DisabledList.Contains(name))
                     {
@@ -362,7 +363,9 @@ public class Profile
             if (EnabledList.Count > 0)
             {
                 int oldCount = DisabledList.Count;
-                DisabledList.UnionWith(ModSelectorService.Instance.GetAllModNames().Where(s => !EnabledList.Contains(s)));
+                DisabledList.UnionWith(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.SolvableModule)
+					.Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule))
+					.Where(s => !EnabledList.Contains(s)));
                 if (DisabledList.Count != oldCount)
                 {
                     Save();
