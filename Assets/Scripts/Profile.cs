@@ -256,6 +256,7 @@ public class Profile
                 {
                     DisabledList = new HashSet<string>(JsonConvert.DeserializeObject<List<string>>(jsonInput));
                     Operation = SetOperation.Expert;
+                    UpdateExpertProfile();
                 }
                 catch (Exception ex3)
                 {
@@ -279,8 +280,12 @@ public class Profile
 
             if (Operation == SetOperation.Expert)
             {
+                if (EnabledList == null)
+                {
+                    EnabledList = new HashSet<string>();
+                }
                 foreach (string name in ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.SolvableModule)
-					.Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule)))
+                    .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule)))
                 {
                     if (DisabledList.Contains(name))
                     {
@@ -360,12 +365,12 @@ public class Profile
     {
         if (Operation == SetOperation.Expert)
         {
-            if (EnabledList.Count > 0)
+            if (EnabledList != null && EnabledList.Count > 0)
             {
                 int oldCount = DisabledList.Count;
                 DisabledList.UnionWith(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.SolvableModule)
-					.Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule))
-					.Where(s => !EnabledList.Contains(s)));
+                    .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule))
+                    .Where(s => !EnabledList.Contains(s)));
                 if (DisabledList.Count != oldCount)
                 {
                     Save();
