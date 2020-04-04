@@ -285,7 +285,8 @@ public class Profile
                     EnabledList = new HashSet<string>();
                 }
                 foreach (string name in ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.SolvableModule)
-                    .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule)))
+                    .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule))
+                    .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.Widget)))
                 {
                     if (DisabledList.Contains(name))
                     {
@@ -370,6 +371,7 @@ public class Profile
                 int oldCount = DisabledList.Count;
                 DisabledList.UnionWith(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.SolvableModule)
                     .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule))
+                    .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.Widget))
                     .Where(s => !EnabledList.Contains(s)));
                 if (DisabledList.Count != oldCount)
                 {
