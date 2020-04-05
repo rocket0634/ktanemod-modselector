@@ -224,7 +224,12 @@ public class Profile
 
     public int GetDisabledTotalOfType(ModSelectorService.ModType modType)
     {
-        return DisabledList.Intersect(ModSelectorService.Instance.GetModNames(modType)).Count();
+        return ModSelectorService.Instance.GetModNames(modType).Intersect(DisabledList).Count();
+    }
+
+    public int GetEnabledTotalOfType(ModSelectorService.ModType modType)
+    {
+        return ModSelectorService.Instance.GetModNames(modType).Except(DisabledList).Count();
     }
 
     public void Reload()
@@ -280,6 +285,7 @@ public class Profile
 
             if (Operation == SetOperation.Expert)
             {
+                // Update the EnabledList based on currently installed mods.
                 if (EnabledList == null)
                 {
                     EnabledList = new HashSet<string>();
@@ -366,22 +372,35 @@ public class Profile
     {
         if (Operation == SetOperation.Expert)
         {
-            if (EnabledList != null && EnabledList.Count > 0)
+            bool rewrite;
+            if (EnabledList != null)
             {
+                // Enable mods in both lists.
                 int oldCount = DisabledList.Count;
+                DisabledList.ExceptWith(EnabledList);
+                rewrite = DisabledList.Count != oldCount;
+
+                // Disable mods in neither list (not installed where the profile was made).
+                oldCount = DisabledList.Count;
                 DisabledList.UnionWith(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.SolvableModule)
                     .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule))
                     .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.Widget))
-                    .Where(s => !EnabledList.Contains(s)));
-                if (DisabledList.Count != oldCount)
-                {
-                    Save();
-                }
+                    .Except(EnabledList));
+                rewrite |= DisabledList.Count != oldCount;
             }
             else
             {
+                rewrite = true;
+            }
+            if (rewrite)
+            {
                 Save();
             }
+        }
+        else if (EnabledList != null)
+        {
+            EnabledList = null;
+            Save();
         }
     }
 
