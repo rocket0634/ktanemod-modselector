@@ -1619,10 +1619,10 @@ Transform:
   - {fileID: 4754813520607464}
   - {fileID: 4829690386152958}
   - {fileID: 4486700162610306}
+  - {fileID: 4125117904009750}
   - {fileID: 4384001115528708}
   - {fileID: 4295807296467874}
   - {fileID: 4616780610491908}
-  - {fileID: 4125117904009750}
   - {fileID: 4588244999070310}
   m_Father: {fileID: 4607575483144432}
   m_RootOrder: 3
@@ -1673,7 +1673,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1643376050135814}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -700, z: 0}
+  m_LocalPosition: {x: 0, y: -400, z: 0}
   m_LocalScale: {x: 0.99999994, y: 1.0000004, z: 1.0000005}
   m_Children:
   - {fileID: 4384045173100736}
@@ -1685,7 +1685,7 @@ Transform:
   - {fileID: 4879641969889354}
   - {fileID: 4274275099676272}
   m_Father: {fileID: 4098417825951806}
-  m_RootOrder: 6
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4134141758688054
 Transform:
@@ -1867,7 +1867,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1727351317537038}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -500, z: 0}
+  m_LocalPosition: {x: 0, y: -600, z: 0}
   m_LocalScale: {x: 0.99999994, y: 1.0000004, z: 1.0000005}
   m_Children:
   - {fileID: 4742893625395904}
@@ -1879,7 +1879,7 @@ Transform:
   - {fileID: 4121945958161172}
   - {fileID: 4695209398733190}
   m_Father: {fileID: 4098417825951806}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4304865279155310
 Transform:
@@ -1927,7 +1927,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1403437142875500}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -400, z: 0}
+  m_LocalPosition: {x: 0, y: -500, z: 0}
   m_LocalScale: {x: 0.99999994, y: 1.0000004, z: 1.0000005}
   m_Children:
   - {fileID: 4858076500969256}
@@ -1939,7 +1939,7 @@ Transform:
   - {fileID: 4532081231095130}
   - {fileID: 4439220917673672}
   m_Father: {fileID: 4098417825951806}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4384045173100736
 Transform:
@@ -2255,7 +2255,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1028152092078282}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -600, z: 0}
+  m_LocalPosition: {x: 0, y: -700, z: 0}
   m_LocalScale: {x: 0.99999994, y: 1.0000004, z: 1.0000005}
   m_Children:
   - {fileID: 4172253686034120}
@@ -2267,7 +2267,7 @@ Transform:
   - {fileID: 4304865279155310}
   - {fileID: 4895744490168358}
   m_Father: {fileID: 4098417825951806}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4637186415312760
 Transform:
@@ -5979,6 +5979,7 @@ MonoBehaviour:
   Text: Solvable Modules
   Icon: {fileID: 2800000, guid: 6071cea5e537aee41a0247724442f52c, type: 3}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 102253659720569272}
   IconMesh: {fileID: 23665328584979194}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -6020,6 +6021,7 @@ MonoBehaviour:
   Text: Header
   Icon: {fileID: 0}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 0}
   IconMesh: {fileID: 0}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -6185,6 +6187,7 @@ MonoBehaviour:
   Text: Copy
   Icon: {fileID: 2800000, guid: f7b2546dcd6c1de4d946785b0be77db7, type: 3}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 102352874179822950}
   IconMesh: {fileID: 23258927779451358}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -6263,6 +6266,7 @@ MonoBehaviour:
   Text: Bombs
   Icon: {fileID: 2800000, guid: 755fe7567bb2b2f49987fef43a50a176, type: 3}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 102878772914304674}
   IconMesh: {fileID: 23446760020902236}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -6579,6 +6583,7 @@ MonoBehaviour:
   Text: Gameplay Rooms
   Icon: {fileID: 2800000, guid: adf50e90146d6304192f0a2cb30af559, type: 3}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 102041470091200474}
   IconMesh: {fileID: 23156652943258132}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -6687,6 +6692,7 @@ MonoBehaviour:
   Text: Needy Modules
   Icon: {fileID: 2800000, guid: 6071cea5e537aee41a0247724442f52c, type: 3}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 102309793654791364}
   IconMesh: {fileID: 23884331139615196}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -6741,6 +6747,7 @@ MonoBehaviour:
   Text: Delete
   Icon: {fileID: 2800000, guid: 77bde3612a5ecaa46a533483eb0601a2, type: 3}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 102840602013467104}
   IconMesh: {fileID: 23838653594190856}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -7117,6 +7124,7 @@ MonoBehaviour:
   Text: Services
   Icon: {fileID: 2800000, guid: 0beb992ea16e6dd428b3f6cd61e64610, type: 3}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 102092906629864160}
   IconMesh: {fileID: 23564426023349586}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -7390,6 +7398,7 @@ MonoBehaviour:
   Text: Widgets
   Icon: {fileID: 2800000, guid: 9dc5d056f222cf04f81d783222828be2, type: 3}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 102986178795817766}
   IconMesh: {fileID: 23579516923449568}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -7506,6 +7515,7 @@ MonoBehaviour:
   Text: 'Set Operation: Intersect'
   Icon: {fileID: 2800000, guid: 834c6ced5d04780469dfdef60dde29a0, type: 3}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 102037621116873640}
   IconMesh: {fileID: 23097353449125528}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}
@@ -7649,6 +7659,7 @@ MonoBehaviour:
   Text: Rename
   Icon: {fileID: 2800000, guid: 285ecf578f303b84fb14cd39b099f816, type: 3}
   DisabledIcon: {fileID: 0}
+  DisabledAppearance: 0
   TextRenderer: {fileID: 102097056389073730}
   IconMesh: {fileID: 23839376664508078}
   EnabledTextColor: {r: 0, g: 0, b: 0, a: 1}

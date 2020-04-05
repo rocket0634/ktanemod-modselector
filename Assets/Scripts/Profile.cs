@@ -290,9 +290,7 @@ public class Profile
                 {
                     EnabledList = new HashSet<string>();
                 }
-                foreach (string name in ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.SolvableModule)
-                    .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule))
-                    .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.Widget)))
+                foreach (string name in ModSelectorService.Instance._allExpertMods)
                 {
                     if (DisabledList.Contains(name))
                     {
@@ -382,10 +380,7 @@ public class Profile
 
                 // Disable mods in neither list (not installed where the profile was made).
                 oldCount = DisabledList.Count;
-                DisabledList.UnionWith(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.SolvableModule)
-                    .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.NeedyModule))
-                    .Concat(ModSelectorService.Instance.GetModNames(ModSelectorService.ModType.Widget))
-                    .Except(EnabledList));
+                DisabledList.UnionWith(ModSelectorService.Instance._allExpertMods.Except(EnabledList));
                 rewrite |= DisabledList.Count != oldCount;
             }
             else

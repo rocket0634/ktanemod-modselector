@@ -287,7 +287,7 @@ public class ModSelectorService : MonoBehaviour
 
     public enum ModType
     {
-        [Description("Solvable Modules")] 
+        [Description("Solvable Modules")]
         SolvableModule,
 
         [Description("Needy Modules")]
@@ -416,6 +416,10 @@ public class ModSelectorService : MonoBehaviour
 
         //For all other mod types
         GetModList();
+
+        _allExpertMods.UnionWith(GetModNames(ModType.SolvableModule));
+        _allExpertMods.UnionWith(GetModNames(ModType.NeedyModule));
+        _allExpertMods.UnionWith(GetModNames(ModType.Widget));
     }
 
     private void GetSolvableModules()
@@ -602,9 +606,9 @@ public class ModSelectorService : MonoBehaviour
     {
         return GetModNames(ModType.SolvableModule)
             .Concat(GetModNames(ModType.NeedyModule))
+            .Concat(GetModNames(ModType.Widget))
             .Concat(GetModNames(ModType.Bomb))
             .Concat(GetModNames(ModType.GameplayRoom))
-            .Concat(GetModNames(ModType.Widget))
             .Concat(GetModNames(ModType.Service));
     }
 
@@ -756,7 +760,7 @@ public class ModSelectorService : MonoBehaviour
             modWrapper.EnableModObjects(modType);
         }
     }
-    
+
     public void DisableAllMods(Type modType)
     {
         foreach (ModWrapper modWrapper in _allMods.Values)
@@ -911,6 +915,7 @@ public class ModSelectorService : MonoBehaviour
     #region Private Fields & Properties
     #region Mods
     private Dictionary<string, ModWrapper> _allMods = new Dictionary<string, ModWrapper>();
+    internal HashSet<string> _allExpertMods = new HashSet<string>();
     #endregion
 
     #region Modules

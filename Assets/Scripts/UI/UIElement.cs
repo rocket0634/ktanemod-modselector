@@ -7,6 +7,7 @@ public class UIElement : MonoBehaviour
     public string Text = null;
     public Texture2D Icon = null;
     public Texture2D DisabledIcon = null;
+    public bool DisabledAppearance = false;
 
     public TextMesh TextRenderer = null;
     public MeshRenderer IconMesh = null;
@@ -26,7 +27,7 @@ public class UIElement : MonoBehaviour
             {
                 _selectable = GetComponent<KMSelectable>();
             }
-            
+
             return _selectable.enabled;
         }
         set
@@ -86,14 +87,14 @@ public class UIElement : MonoBehaviour
         if (TextRenderer != null)
         {
             TextRenderer.text = Text;
-            TextRenderer.color = _selectable.enabled ? EnabledTextColor : DisabledTextColor;
+            TextRenderer.color = _selectable.enabled && !DisabledAppearance ? EnabledTextColor : DisabledTextColor;
         }
 
         if (IconMesh != null && _iconPropertyBlock != null)
         {
-            _iconPropertyBlock.SetTexture(_mainTexShaderID, _selectable.enabled ? Icon : (DisabledIcon != null ? DisabledIcon : Icon));
+            _iconPropertyBlock.SetTexture(_mainTexShaderID, _selectable.enabled && !DisabledAppearance ? Icon : (DisabledIcon != null ? DisabledIcon : Icon));
             IconMesh.SetPropertyBlock(_iconPropertyBlock);
-        }        
+        }
     }
 
     private bool OnInteract()
