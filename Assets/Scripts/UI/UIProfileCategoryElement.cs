@@ -17,17 +17,17 @@ public class UIProfileCategoryElement : UIElement
         if (DisabledTextRenderer != null)
         {
             DisabledTextRenderer.text = DisabledText;
-            DisabledTextRenderer.color = CanSelect && !DisabledAppearance ? EnabledTextColor : DisabledTextColor;
+            DisabledTextRenderer.color = CanSelect ? EnabledTextColor : DisabledTextColor;
         }
         if (EnabledTextRenderer != null)
         {
             EnabledTextRenderer.text = EnabledText;
-            EnabledTextRenderer.color = CanSelect && !DisabledAppearance ? EnabledTextColor : DisabledTextColor;
+            EnabledTextRenderer.color = CanSelect ? EnabledTextColor : DisabledTextColor;
         }
         if (TotalTextRenderer != null)
         {
             TotalTextRenderer.text = TotalText;
-            TotalTextRenderer.color = CanSelect && !DisabledAppearance ? EnabledTextColor : DisabledTextColor;
+            TotalTextRenderer.color = CanSelect ? EnabledTextColor : DisabledTextColor;
         }
     }
 }

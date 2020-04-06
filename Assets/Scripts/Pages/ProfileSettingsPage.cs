@@ -162,20 +162,20 @@ public class ProfileSettingsPage : MonoBehaviour
             if (Profile.Operation == Profile.SetOperation.Expert && modType != ModSelectorService.ModType.SolvableModule &&
                 modType != ModSelectorService.ModType.NeedyModule && modType != ModSelectorService.ModType.Widget)
             {
-                element.DisabledAppearance = true;
+                element.CanSelect = false;
                 element.DisabledText = "-";
                 element.EnabledText = "-";
             }
             else
             {
-                element.DisabledAppearance = false;
+                element.CanSelect = true;
                 element.DisabledText = Profile.GetDisabledTotalOfType(modType).ToString();
                 element.EnabledText = Profile.GetEnabledTotalOfType(modType).ToString();
             }
         }
         else
         {
-            element.DisabledAppearance = true;
+            element.CanSelect = false;
             element.DisabledText = "-";
             element.EnabledText = "-";
         }
