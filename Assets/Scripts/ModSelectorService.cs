@@ -338,6 +338,8 @@ public class ModSelectorService : MonoBehaviour
         _properties.Add("AllGameplayRooms", () => GetModNames(ModType.GameplayRoom), null);
         _properties.Add("AllServices", () => GetModNames(ModType.Service), null);
 
+        _properties.Add("GetModuleDisplayNameMethod", () => (Func<string, string>)GetModuleDisplayName, null);
+
         _properties.Add("DisabledMods", () => ProfileManager.ActiveDisableSet, null);
         _properties.Add("DisabledSolvableModules", () => ProfileManager.GetActiveDisableList(ModType.SolvableModule), null);
         _properties.Add("DisabledNeedyModules", () => ProfileManager.GetActiveDisableList(ModType.NeedyModule), null);
@@ -647,6 +649,21 @@ public class ModSelectorService : MonoBehaviour
             .Concat(GetModNamesAndDisplayNames(ModType.GameplayRoom))
             .Concat(GetModNamesAndDisplayNames(ModType.Widget))
             .Concat(GetModNamesAndDisplayNames(ModType.Service));
+    }
+
+    public string GetModuleDisplayName(string moduleType)
+    {
+        SolvableModule solvableModule;
+        if (_allSolvableModules.TryGetValue(moduleType, out solvableModule))
+        {
+            return solvableModule.ModuleName;
+        }
+        NeedyModule needyModule;
+        if (_allNeedyModules.TryGetValue(moduleType, out needyModule))
+        {
+            return needyModule.ModuleName;
+        }
+        return null;
     }
 
     public void EnableAll()
