@@ -20,9 +20,8 @@ public class ClockText : MonoBehaviour
     {
         while (true)
         {
-            _textMesh.text = DateTime.Now.ToString("HH:mm");
+            _textMesh.text = DateTime.Now.ToString("dddd dd MMMM HH:mm");
             yield return new WaitForSeconds(1.0f);
         }
     }
 }
-
