@@ -30,12 +30,12 @@ public class ProfileSettingsPage : MonoBehaviour
     {
         _page.HeaderText = string.Format("<b>{0}</b>\n<size=16>Profile Settings</size>", Profile == null ? "**NULL**" : Profile.FriendlyName);
 
-        RegularModulesSelectable.Text = GetSelectableString(ModSelectorService.ModType.SolvableModule);
-        NeedyModulesSelectable.Text = GetSelectableString(ModSelectorService.ModType.NeedyModule);
-        ServicesSelectable.Text = GetSelectableString(ModSelectorService.ModType.Service);
-        BombCasingsSelectable.Text = GetSelectableString(ModSelectorService.ModType.Bomb);
-        GameplayRoomsSelectable.Text = GetSelectableString(ModSelectorService.ModType.GameplayRoom);
-        WidgetsSelectable.Text = GetSelectableString(ModSelectorService.ModType.Widget);
+        SetProfileCategoryCounts((UIProfileCategoryElement)RegularModulesSelectable, ModSelectorService.ModType.SolvableModule);
+        SetProfileCategoryCounts((UIProfileCategoryElement)NeedyModulesSelectable, ModSelectorService.ModType.NeedyModule);
+        SetProfileCategoryCounts((UIProfileCategoryElement)ServicesSelectable, ModSelectorService.ModType.Service);
+        SetProfileCategoryCounts((UIProfileCategoryElement)BombCasingsSelectable, ModSelectorService.ModType.Bomb);
+        SetProfileCategoryCounts((UIProfileCategoryElement)GameplayRoomsSelectable, ModSelectorService.ModType.GameplayRoom);
+        SetProfileCategoryCounts((UIProfileCategoryElement)WidgetsSelectable, ModSelectorService.ModType.Widget);
 
         SetOperationSelectable.Text = GetSetOperationString();
         SetOperationSelectable.BackgroundHighlight.UnselectedColor = Profile != null ? Profile.Operation.GetColor() : Color.white;
@@ -133,8 +133,7 @@ public class ProfileSettingsPage : MonoBehaviour
                 break;
         }
 
-        SetOperationSelectable.BackgroundHighlight.UnselectedColor = Profile.Operation.GetColor();
-        SetOperationSelectable.Text = GetSetOperationString();
+        OnEnable();
     }
 
     public void Copy()
@@ -155,17 +154,31 @@ public class ProfileSettingsPage : MonoBehaviour
         _page.GoToPage(ConfirmDeletePagePrefab);
     }
 
-    private string GetSelectableString(ModSelectorService.ModType modType)
+    private void SetProfileCategoryCounts(UIProfileCategoryElement element, ModSelectorService.ModType modType)
     {
+        element.TotalText = Profile.GetTotalOfType(modType).ToString();
         if (Profile != null)
         {
-            int total = Profile.GetTotalOfType(modType);
-            int disabledTotal = Profile.GetDisabledTotalOfType(modType);
-
-            return string.Format("{0} <i>({1} of {2} disabled)</i>", modType.GetAttributeOfType<DescriptionAttribute>().Description, disabledTotal, total);
+            if (Profile.Operation == Profile.SetOperation.Expert && modType != ModSelectorService.ModType.SolvableModule &&
+                modType != ModSelectorService.ModType.NeedyModule && modType != ModSelectorService.ModType.Widget)
+            {
+                element.CanSelect = false;
+                element.DisabledText = "-";
+                element.EnabledText = "-";
+            }
+            else
+            {
+                element.CanSelect = true;
+                element.DisabledText = Profile.GetDisabledTotalOfType(modType).ToString();
+                element.EnabledText = Profile.GetEnabledTotalOfType(modType).ToString();
+            }
         }
-
-        return "**NULL** <i>(0 of 0 enabled)</i>";
+        else
+        {
+            element.CanSelect = false;
+            element.DisabledText = "-";
+            element.EnabledText = "-";
+        }
     }
 
     private string GetSetOperationString()

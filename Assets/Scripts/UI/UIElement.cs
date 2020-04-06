@@ -26,7 +26,7 @@ public class UIElement : MonoBehaviour
             {
                 _selectable = GetComponent<KMSelectable>();
             }
-            
+
             return _selectable.enabled;
         }
         set
@@ -93,7 +93,7 @@ public class UIElement : MonoBehaviour
         {
             _iconPropertyBlock.SetTexture(_mainTexShaderID, _selectable.enabled ? Icon : (DisabledIcon != null ? DisabledIcon : Icon));
             IconMesh.SetPropertyBlock(_iconPropertyBlock);
-        }        
+        }
     }
 
     private bool OnInteract()

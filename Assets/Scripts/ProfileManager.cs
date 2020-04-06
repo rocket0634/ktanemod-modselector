@@ -180,6 +180,8 @@ public static class ProfileManager
                     {
                         profileMergeSet.IntersectWith(intersects[intersectProfileIndex].DisabledList);
                     }
+                    // Only modules and widgets may be disabled by expert profiles.
+                    profileMergeSet.IntersectWith(ModSelectorService.Instance._allExpertMods);
                 }
 
                 foreach (Profile union in ActiveProfiles.Where((x) => x.Operation == Profile.SetOperation.Defuser))

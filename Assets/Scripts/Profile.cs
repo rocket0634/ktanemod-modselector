@@ -25,8 +25,10 @@ public class Profile
     public class NewJSON
     {
         public List<string> DisabledList = new List<string>();
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> EnabledList;
         public SetOperation Operation = SetOperation.Expert;
-    }    
+    }
 
     public Profile(string filename, bool createNew = false)
     {
@@ -87,6 +89,12 @@ public class Profile
         private set;
     }
 
+    public HashSet<string> EnabledList
+    {
+        get;
+        private set;
+    }
+
     public SetOperation Operation
     {
         get;
@@ -94,7 +102,7 @@ public class Profile
     }
     #endregion
 
-    #region Public Methods    
+    #region Public Methods
     public void SetSetOperation(SetOperation operation, bool andSave = true)
     {
         Operation = operation;
@@ -216,7 +224,12 @@ public class Profile
 
     public int GetDisabledTotalOfType(ModSelectorService.ModType modType)
     {
-        return DisabledList.Intersect(ModSelectorService.Instance.GetModNames(modType)).Count();
+        return ModSelectorService.Instance.GetModNames(modType).Intersect(DisabledList).Count();
+    }
+
+    public int GetEnabledTotalOfType(ModSelectorService.ModType modType)
+    {
+        return ModSelectorService.Instance.GetModNames(modType).Except(DisabledList).Count();
     }
 
     public void Reload()
@@ -233,7 +246,12 @@ public class Profile
                 if (newJSON != null)
                 {
                     DisabledList = new HashSet<string>(newJSON.DisabledList);
+                    if (newJSON.EnabledList != null)
+                    {
+                        EnabledList = new HashSet<string>(newJSON.EnabledList);
+                    }
                     Operation = newJSON.Operation;
+                    UpdateExpertProfile();
                     return;
                 }
             }
@@ -243,6 +261,7 @@ public class Profile
                 {
                     DisabledList = new HashSet<string>(JsonConvert.DeserializeObject<List<string>>(jsonInput));
                     Operation = SetOperation.Expert;
+                    UpdateExpertProfile();
                 }
                 catch (Exception ex3)
                 {
@@ -263,6 +282,27 @@ public class Profile
             EnsureProfileDirectory();
 
             NewJSON jsonStructure = new NewJSON() { DisabledList = new List<string>(DisabledList), Operation = Operation };
+
+            if (Operation == SetOperation.Expert)
+            {
+                // Update the EnabledList based on currently installed mods.
+                if (EnabledList == null)
+                {
+                    EnabledList = new HashSet<string>();
+                }
+                foreach (string name in ModSelectorService.Instance._allExpertMods)
+                {
+                    if (DisabledList.Contains(name))
+                    {
+                        EnabledList.Remove(name);
+                    }
+                    else
+                    {
+                        EnabledList.Add(name);
+                    }
+                }
+                jsonStructure.EnabledList = new List<string>(EnabledList);
+            }
 
             string jsonOutput = JsonConvert.SerializeObject(jsonStructure, Formatting.Indented);
             File.WriteAllText(FullPath, jsonOutput);
@@ -304,7 +344,7 @@ public class Profile
         newProfile.Operation = Operation;
         newProfile.Save();
 
-        return newProfile;       
+        return newProfile;
     }
 
     public void Delete()
@@ -323,6 +363,39 @@ public class Profile
         catch (Exception ex)
         {
             Debug.LogException(ex);
+        }
+    }
+
+    public void UpdateExpertProfile()
+    {
+        if (Operation == SetOperation.Expert)
+        {
+            bool rewrite;
+            if (EnabledList != null)
+            {
+                // Enable mods in both lists.
+                int oldCount = DisabledList.Count;
+                DisabledList.ExceptWith(EnabledList);
+                rewrite = DisabledList.Count != oldCount;
+
+                // Disable mods in neither list (not installed where the profile was made).
+                oldCount = DisabledList.Count;
+                DisabledList.UnionWith(ModSelectorService.Instance._allExpertMods.Except(EnabledList));
+                rewrite |= DisabledList.Count != oldCount;
+            }
+            else
+            {
+                rewrite = true;
+            }
+            if (rewrite)
+            {
+                Save();
+            }
+        }
+        else if (EnabledList != null)
+        {
+            EnabledList = null;
+            Save();
         }
     }
 
