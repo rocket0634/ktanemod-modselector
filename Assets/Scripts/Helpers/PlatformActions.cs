@@ -20,7 +20,6 @@ public static class PlatformActions
                 break;
 
             case RuntimePlatform.OSXPlayer:
-            case RuntimePlatform.OSXDashboardPlayer:
                 Process.Start("open", string.Format("-n -R \"{0}\"", path));
                 break;
 

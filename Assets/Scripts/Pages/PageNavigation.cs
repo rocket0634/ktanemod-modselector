@@ -108,6 +108,10 @@ public class PageNavigation : MonoBehaviour
         page.gameObject.SetActive(true);
 
         RootSelectable.Reproxy();
-        RootSelectable.UpdateChildren(RootSelectable.Children[RootSelectable.DefaultSelectableIndex]);
+
+        if (RootSelectable.DefaultSelectableIndex >= 0 && RootSelectable.DefaultSelectableIndex < RootSelectable.Children.Length)
+        {
+            RootSelectable.UpdateChildren(RootSelectable.Children[RootSelectable.DefaultSelectableIndex]);
+        }
     }
 }
