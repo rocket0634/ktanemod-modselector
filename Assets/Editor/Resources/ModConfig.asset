@@ -34,7 +34,8 @@ MonoBehaviour:
     Authentication).\r\nAs of v1.2.0, this will allow deletion of existing profiles,
     and also provides a fix to prevent bad initialisation in the case of duplicate
     mods installed.\r\nAs of v2.0.0, the Mod Selector is now a world-space object,
-    much like the bomb binder, with dynamic profile merging and 2 modes of merging."
+    much like the bomb binder, with dynamic profile merging and 2 modes of merging.\nAs
+    of v2.5.0, Expert-style profiles work based on a EnableList rather than the DisableList."
   version: v2.5.0
   outputFolder: E:\Games\SteamLibrary\steamapps\common\Keep Talking and Nobody Explodes\mods
   previewImage: {fileID: 2800000, guid: 3635e2c54a9c5ee4e9896ba11c4f5a43, type: 3}
