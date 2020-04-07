@@ -1,50 +1,31 @@
 ﻿using System.Linq;
-using UnityEngine;
 
-public class ProfileTogglePage : MonoBehaviour
+public class ProfileTogglePage : Pagination<Profile, UIToggle>
 {
-    public UIElement PreviousButton = null;
-    public UIElement NextButton = null;
-
-    private int TotalPageCount
-    {
-        get
-        {
-            return ((_availableProfiles.Length - 1) / _toggles.Length) + 1;
-        }
-    }
-
-    private int ToggleOffset
-    {
-        get
-        {
-            return _pageIndex * _toggles.Length;
-        }
-    }
-
-    private bool PreviousEnabled
-    {
-        get
-        {
-            return _pageIndex > 0;
-        }
-    }
-
-    private bool NextEnabled
-    {
-        get
-        {
-            return _pageIndex < TotalPageCount - 1;
-        }
-    }
-
     public Profile[] _availableProfiles = null;
-    private UIToggle[] _toggles = null;
-    private Page _page = null;
-    private int _pageIndex = 0;
 
-    private void Awake()
+    protected override Profile[] ValueCollection
     {
+        get
+        {
+            return _availableProfiles;
+        }
+    }
+
+    protected override UIToggle[] ElementCollection
+    {
+        get
+        {
+            return _toggles;
+        }
+    }
+
+    private UIToggle[] _toggles = null;
+
+    protected override void Awake()
+    {
+        base.Awake();
+
         _toggles = GetComponentsInChildren<UIToggle>(true);
         for (int toggleIndex = 0; toggleIndex < _toggles.Length; ++toggleIndex)
         {
@@ -54,18 +35,16 @@ public class ProfileTogglePage : MonoBehaviour
             {
                 if (toggled)
                 {
-                    ProfileManager.ActiveProfiles.Add(_availableProfiles[ToggleOffset + localToggleIndex]);
+                    ProfileManager.ActiveProfiles.Add(_availableProfiles[ValueOffset + localToggleIndex]);
                     ProfileManager.UpdateProfileSelection(true);
                 }
                 else
                 {
-                    ProfileManager.ActiveProfiles.Remove(_availableProfiles[ToggleOffset + localToggleIndex]);
+                    ProfileManager.ActiveProfiles.Remove(_availableProfiles[ValueOffset + localToggleIndex]);
                     ProfileManager.UpdateProfileSelection(true);
                 }
             };
         }
-
-        _page = GetComponent<Page>();
     }
 
     private void OnEnable()
@@ -75,64 +54,29 @@ public class ProfileTogglePage : MonoBehaviour
         SetPage(0);
     }
 
-    public void SetPage(int pageIndex)
+    public override void SetPage(int pageIndex, int pageOffset = 0)
     {
         if (_toggles == null)
         {
             return;
         }
 
-        _pageIndex = Mathf.Clamp(pageIndex, 0, TotalPageCount - 1);
+        base.SetPage(pageIndex, pageOffset);
 
-        for (int toggleIndex = 0; toggleIndex < _toggles.Length; ++toggleIndex)
-        {
-            int trueToggleIndex = ToggleOffset + toggleIndex;
-
-            UIToggle toggle = _toggles[toggleIndex];
-
-            if (trueToggleIndex < _availableProfiles.Length)
-            {
-                Profile profile = _availableProfiles[trueToggleIndex];
-
-                toggle.gameObject.SetActive(true);
-                toggle.IsOn = ProfileManager.ActiveProfiles.Contains(profile);
-
-                toggle.BackgroundHighlight.UnselectedColor = profile.Operation.GetColor();
-                toggle.Text = _availableProfiles[trueToggleIndex].FriendlyName;
-            }
-            else
-            {
-                toggle.gameObject.SetActive(false);
-            }
-        }
-
-        _page.HeaderText = string.Format("<b>Select Active Profiles</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
-
-        if (PreviousButton != null)
-        {
-            PreviousButton.CanSelect = PreviousEnabled;
-        }
-
-        if (NextButton != null)
-        {
-            NextButton.CanSelect = NextEnabled;
-        }
-    }
-
-    public void NextPage()
-    {
-        SetPage(_pageIndex + 1);
-    }
-
-    public void PreviousPage()
-    {
-        SetPage(_pageIndex - 1);
+        Page.HeaderText = string.Format("<b>Select Active Profiles</b>\n<size=16>{0}</size>", PageName);
     }
 
     public void DisableAll()
     {
         ProfileManager.ActiveProfiles.Clear();
         ProfileManager.UpdateProfileSelection(true);
-        SetPage(_pageIndex);
+        SetPage(PageIndex);
+    }
+
+    protected override void SetElement(Profile value, UIToggle element)
+    {
+        element.IsOn = ProfileManager.ActiveProfiles.Contains(value);
+        element.BackgroundHighlight.UnselectedColor = value.Operation.GetColor();
+        element.Text = value.FriendlyName;
     }
 }

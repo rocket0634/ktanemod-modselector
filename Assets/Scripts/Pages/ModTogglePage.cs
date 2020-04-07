@@ -1,66 +1,41 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using UnityEngine;
 
-public class ModTogglePage : MonoBehaviour
+public class ModTogglePage : Pagination<KeyValuePair<string, string>, UIToggle>
 {
     public Profile Profile = null;
     public ModSelectorService.ModType ModType = ModSelectorService.ModType.Unknown;
     public KeyValuePair<string, string>[] Entries = null;
 
-    public UIElement PreviousButton = null;
-    public UIElement NextButton = null;
-
-    private int TotalPageCount
+    protected override KeyValuePair<string, string>[] ValueCollection
     {
         get
         {
-            if (Entries == null)
-            {
-                return 1;
-            }
-
-            return ((Entries.Length - 1) / _toggles.Length) + 1;
+            return Entries;
         }
     }
 
-    private int ToggleOffset
+    protected override UIToggle[] ElementCollection
     {
         get
         {
-            return _pageIndex * _toggles.Length;
-        }
-    }
-
-    private bool PreviousEnabled
-    {
-        get
-        {
-            return _pageIndex > 0;
-        }
-    }
-
-    private bool NextEnabled
-    {
-        get
-        {
-            return _pageIndex < TotalPageCount - 1;
+            return _toggles;
         }
     }
 
     private UIToggle[] _toggles = null;
-    private int _pageIndex = 0;
-    private Page _page = null;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         _toggles = GetComponentsInChildren<UIToggle>(true);
         for(int toggleIndex = 0; toggleIndex < _toggles.Length; ++toggleIndex)
         {
             int localToggleIndex = toggleIndex;
             _toggles[toggleIndex].OnToggleChange += delegate (bool toggled)
             {
-                string entry = Entries[ToggleOffset + localToggleIndex].Key;
+                string entry = Entries[ValueOffset + localToggleIndex].Key;
 
                 if (toggled)
                 {
@@ -72,8 +47,6 @@ public class ModTogglePage : MonoBehaviour
                 }
             };
         }
-
-        _page = GetComponent<Page>();
     }
 
     private void OnEnable()
@@ -81,78 +54,45 @@ public class ModTogglePage : MonoBehaviour
         SetPage(0);
     }
 
-    public void SetPage(int pageIndex)
+    public override void SetPage(int pageIndex, int pageOffset = 0)
     {
         if (Entries == null || Profile == null || _toggles == null)
         {
             return;
         }
 
-        _pageIndex = Mathf.Clamp(pageIndex, 0, TotalPageCount - 1);
+        base.SetPage(pageIndex, pageOffset);
 
-        for (int toggleIndex = 0; toggleIndex < _toggles.Length; ++toggleIndex)
-        {
-            int trueToggleIndex = ToggleOffset + toggleIndex;
-
-            UIToggle toggle = _toggles[toggleIndex];
-
-            if (trueToggleIndex < Entries.Length)
-            {
-                toggle.gameObject.SetActive(true);
-
-                switch (Profile.GetEnabledFlag(Entries[trueToggleIndex].Key))
-                {
-                    case Profile.EnableFlag.Disabled:
-                        toggle.IsOn = true;
-                        break;
-                    case Profile.EnableFlag.Enabled:
-                        toggle.IsOn = false;
-                        break;
-
-                    default:
-                        break;
-                }
-
-                toggle.Text = Entries[trueToggleIndex].Value;
-            }
-            else
-            {
-                toggle.gameObject.SetActive(false);
-            }
-        }
-
-        _page.HeaderText = string.Format("<b>{0}</b>\n<size=16>{1}, page {2} of {3}</size>", Profile.FriendlyName, ModType.GetAttributeOfType<DescriptionAttribute>().Description, _pageIndex + 1, TotalPageCount);
-
-        if (PreviousButton != null)
-        {
-            PreviousButton.CanSelect = PreviousEnabled;
-        }
-
-        if (NextButton != null)
-        {
-            NextButton.CanSelect = NextEnabled;
-        }
+        Page.HeaderText = string.Format("<b>{0}</b>\n<size=16>{1}, {2}</size>", Profile.FriendlyName, ModType.GetAttributeOfType<DescriptionAttribute>().Description, PageName);
     }
 
     public void EnableAll()
     {
         Profile.EnableAllOfType(ModType);
-        SetPage(_pageIndex);
+        SetPage(PageIndex);
     }
 
     public void DisableAll()
     {
         Profile.DisableAllOfType(ModType);
-        SetPage(_pageIndex);
+        SetPage(PageIndex);
     }
 
-    public void NextPage()
+    protected override void SetElement(KeyValuePair<string, string> value, UIToggle element)
     {
-        SetPage(_pageIndex + 1);
-    }
+        switch (Profile.GetEnabledFlag(value.Key))
+        {
+            case Profile.EnableFlag.Disabled:
+                element.IsOn = true;
+                break;
+            case Profile.EnableFlag.Enabled:
+                element.IsOn = false;
+                break;
 
-    public void PreviousPage()
-    {
-        SetPage(_pageIndex - 1);
+            default:
+                break;
+        }
+
+        element.Text = value.Value;
     }
 }

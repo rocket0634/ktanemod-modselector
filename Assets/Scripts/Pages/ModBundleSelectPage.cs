@@ -1,54 +1,32 @@
 using System.Linq;
-using UnityEngine;
 
-public class ModBundleSelectPage : MonoBehaviour
+public class ModBundleSelectPage : Pagination<ModSelectorService.ModWrapper, UIElement>
 {
     public ModBundleInfoPage InfoPagePrefab = null;
 
-    public UIElement PreviousButton = null;
-    public UIElement NextButton = null;
-
     public UIElement[] Options = null;
 
-    private int TotalPageCount
+    protected override ModSelectorService.ModWrapper[] ValueCollection
     {
         get
         {
-            return ((_modWrappers.Length - 1) / Options.Length) + 1;
+            return _modWrappers;
         }
     }
 
-    private int OptionOffset
+    protected override UIElement[] ElementCollection
     {
         get
         {
-            return _pageIndex * Options.Length;
-        }
-    }
-
-    private bool PreviousEnabled
-    {
-        get
-        {
-            return _pageIndex > 0;
-        }
-    }
-
-    private bool NextEnabled
-    {
-        get
-        {
-            return _pageIndex < TotalPageCount - 1;
+            return Options;
         }
     }
 
     private ModSelectorService.ModWrapper[] _modWrappers = null;
-    private int _pageIndex = 0;
-    private Page _page = null;
 
-    private void Awake()
+    protected override void Awake()
     {
-        _page = GetComponent<Page>();
+        base.Awake();
 
         for (int optionIndex = 0; optionIndex < Options.Length; ++optionIndex)
         {
@@ -57,8 +35,8 @@ public class ModBundleSelectPage : MonoBehaviour
             KMSelectable selectable = Options[optionIndex].GetComponent<KMSelectable>();
             selectable.OnInteract += delegate()
             {
-                _page.GetPageWithComponent(InfoPagePrefab).ModWrapper = _modWrappers[OptionOffset + localOptionIndex];
-                _page.GoToPage(InfoPagePrefab);
+                Page.GetPageWithComponent(InfoPagePrefab).ModWrapper = _modWrappers[ValueOffset + localOptionIndex];
+                Page.GoToPage(InfoPagePrefab);
                 return true;
             };
         }
@@ -77,51 +55,20 @@ public class ModBundleSelectPage : MonoBehaviour
         SetPage(0);
     }
 
-    public void SetPage(int pageIndex)
+    public override void SetPage(int pageIndex, int pageOffset = 0)
     {
         if (_modWrappers == null)
         {
             return;
         }
 
-        _pageIndex = Mathf.Clamp(pageIndex, 0, TotalPageCount - 1);
+        base.SetPage(pageIndex, pageOffset);
 
-        for (int optionIndex = 0; optionIndex < Options.Length; ++optionIndex)
-        {
-            UIElement option = Options[optionIndex];
-            int trueOptionIndex = OptionOffset + optionIndex;
-
-            if (trueOptionIndex < _modWrappers.Length)
-            {
-                option.gameObject.SetActive(true);
-                option.Text = _modWrappers[trueOptionIndex].ModTitle;
-            }
-            else
-            {
-                option.gameObject.SetActive(false);
-            }
-        }
-
-        _page.HeaderText = string.Format("<b>Select Mod For Info...</b>\n<size=16>Page {0} of {1}</size>", _pageIndex + 1, TotalPageCount);
-
-        if (PreviousButton != null)
-        {
-            PreviousButton.CanSelect = PreviousEnabled;
-        }
-
-        if (NextButton != null)
-        {
-            NextButton.CanSelect = NextEnabled;
-        }
+        Page.HeaderText = string.Format("<b>Select Mod For Info...</b>\n<size=16>{0}</size>", PageName);
     }
 
-    public void NextPage()
+    protected override void SetElement(ModSelectorService.ModWrapper value, UIElement element)
     {
-        SetPage(_pageIndex + 1);
-    }
-
-    public void PreviousPage()
-    {
-        SetPage(_pageIndex - 1);
+        element.Text = value.ModTitle;
     }
 }

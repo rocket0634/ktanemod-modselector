@@ -13906,10 +13906,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79153bde1506be34785a77877f27819e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InfoPagePrefab: {fileID: 114222921948154978, guid: bcc79265891051a49afecae4dff7aa1a,
-    type: 2}
   PreviousButton: {fileID: 114998422323872984}
   NextButton: {fileID: 114988331558835880}
+  ElementsPerRow: 3
+  InfoPagePrefab: {fileID: 114222921948154978, guid: bcc79265891051a49afecae4dff7aa1a,
+    type: 2}
   Options:
   - {fileID: 114321038237736512}
   - {fileID: 114691446850757720}
@@ -17000,18 +17001,7 @@ MonoBehaviour:
   BackgroundHighlight: {fileID: 114533039962207944}
   InteractAction:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114287419503120328}
-        m_MethodName: NextPage
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114988651335492652
@@ -17107,17 +17097,6 @@ MonoBehaviour:
   BackgroundHighlight: {fileID: 114421701600802992}
   InteractAction:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114287419503120328}
-        m_MethodName: PreviousPage
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
