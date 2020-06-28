@@ -11,9 +11,14 @@ public class ClockText : MonoBehaviour
         _textMesh = GetComponent<TextMesh>();
     }
 
-    private void Update()
+    private void OnEnable()
     {
         StartCoroutine(UpdatePerSecond());
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
     }
 
     private IEnumerator UpdatePerSecond()
