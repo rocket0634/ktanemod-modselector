@@ -11,6 +11,7 @@ public class PageNavigation : MonoBehaviour
     public KMSelectable TempSelectable = null;
 
     private Stack<KMSelectable> _backStack = new Stack<KMSelectable>();
+    private KMSelectable _popOver = null;
 
     private void Awake()
     {
@@ -27,8 +28,16 @@ public class PageNavigation : MonoBehaviour
             return;
         }
 
-        if (_backStack.Count > 0)
+        if (_popOver != null)
         {
+            KMSelectable newPage = _backStack.Peek();
+            SwapPages(_popOver, newPage);
+
+            _popOver = null;
+        }
+
+        if (_backStack.Count > 0)
+        {            
             SwapPages(_backStack.Peek(), page);
         }
         else
@@ -39,17 +48,49 @@ public class PageNavigation : MonoBehaviour
         _backStack.Push(page);
     }
 
+    public void ShowPopOver(string pageName)
+    {
+        KMSelectable page = PageManager[pageName];
+        if (page == null)
+        {
+            return;
+        }
+
+        if (_popOver != null)
+        {
+            SwapPages(_popOver, page);
+        }
+        else
+        {
+            SwapPages(_backStack.Peek(), page, false);
+        }
+
+        _popOver = page;
+        page.transform.localPosition = Vector3.forward * -0.002f;
+    }
+
     public void GoBack()
     {
-        if (_backStack.Count <= 1)
+        if (_backStack.Count <= 1 && _popOver == null)
         {
             //This should do a drop of the holdable in theory
             return;
         }
 
-        KMSelectable oldPage = _backStack.Pop();
+        KMSelectable oldPage;
+        if (_popOver != null)
+        {
+            oldPage = _popOver;
+        }
+        else
+        {
+            oldPage = _backStack.Pop();
+        }
+
         KMSelectable newPage = _backStack.Peek();
         SwapPages(oldPage, newPage);
+
+        _popOver = null;
     }
 
     private bool OnCancel()
@@ -63,7 +104,7 @@ public class PageNavigation : MonoBehaviour
         return true;
     }
 
-    private void SwapPages(KMSelectable oldPage, KMSelectable newPage)
+    private void SwapPages(KMSelectable oldPage, KMSelectable newPage, bool deactivateOldPage = true)
     {
         RootSelectable.Children = new KMSelectable[1] { TempSelectable };
         RootSelectable.ChildRowLength = 1;
@@ -79,7 +120,11 @@ public class PageNavigation : MonoBehaviour
         }
 
         RootSelectable.Reproxy();
-        oldPage.gameObject.SetActive(false);
+
+        if (deactivateOldPage)
+        {
+            oldPage.gameObject.SetActive(false);
+        }
 
         if (newPage != null)
         {

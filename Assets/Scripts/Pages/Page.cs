@@ -47,6 +47,11 @@ public class Page : MonoBehaviour
         _pageNavigation.GoToPage(pagePrefab.name);
     }
 
+    public void ShowPopOver<T>(T pagePrefab) where T: MonoBehaviour
+    {
+        _pageNavigation.ShowPopOver(pagePrefab.name);
+    }
+
     public T GetPageWithComponent<T>(T pagePrefab) where T : MonoBehaviour
     {
         return _pageManager[pagePrefab.name].GetComponent<T>();

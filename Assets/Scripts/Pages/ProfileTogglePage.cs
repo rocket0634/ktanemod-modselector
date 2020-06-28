@@ -1,8 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 public class ProfileTogglePage : Pagination<Profile, UIToggle>
 {
-    public Profile[] _availableProfiles = null;
+    public FilterButton FilterButton = null;
 
     protected override Profile[] ValueCollection
     {
@@ -20,7 +21,24 @@ public class ProfileTogglePage : Pagination<Profile, UIToggle>
         }
     }
 
+    private IEnumerable<Profile> FilteredProfiles
+    {
+        get
+        {
+            IEnumerable<KeyValuePair<string, Profile>> profiles = ProfileManager.AvailableProfiles;
+
+            string filter = FilterButton.FilterText.ToLowerInvariant();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                profiles = profiles.Where((x) => x.Key.ToLowerInvariant().Contains(filter));
+            }
+
+            return profiles.OrderBy((x) => -(int)(x.Value.Operation)).ThenBy((y) => y.Key).Select((z) => z.Value);
+        }
+    }
+
     private UIToggle[] _toggles = null;
+    private Profile[] _availableProfiles = null;
 
     protected override void Awake()
     {
@@ -45,12 +63,20 @@ public class ProfileTogglePage : Pagination<Profile, UIToggle>
                 }
             };
         }
+
+        FilterButton.FilterTextChange.AddListener(FilterTextChange);
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        FilterButton.FilterTextChange.RemoveListener(FilterTextChange);
     }
 
     private void OnEnable()
     {
-        _availableProfiles = ProfileManager.AvailableProfiles.OrderBy((x) => -(int)(x.Value.Operation)).ThenBy((y) => y.Key).Select((z) => z.Value).ToArray();
-
+        _availableProfiles = FilteredProfiles.ToArray();
         SetPage(0);
     }
 
@@ -78,5 +104,11 @@ public class ProfileTogglePage : Pagination<Profile, UIToggle>
         element.IsOn = ProfileManager.ActiveProfiles.Contains(value);
         element.BackgroundHighlight.UnselectedColor = value.Operation.GetColor();
         element.Text = value.FriendlyName;
+    }
+
+    private void FilterTextChange(string filterText)
+    {
+        _availableProfiles = FilteredProfiles.ToArray();
+        SetPage(0);
     }
 }

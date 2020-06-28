@@ -54,7 +54,6 @@ public class ProfileSettingsPage : MonoBehaviour
         modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.SolvableModule).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
-        modTogglePage.SetPage(0);
         _page.GoToPage(ModTogglePagePrefab);
     }
 
@@ -66,7 +65,6 @@ public class ProfileSettingsPage : MonoBehaviour
         modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.NeedyModule).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
-        modTogglePage.SetPage(0);
         _page.GoToPage(ModTogglePagePrefab);
     }
 
@@ -78,7 +76,6 @@ public class ProfileSettingsPage : MonoBehaviour
         modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.Bomb).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
-        modTogglePage.SetPage(0);
         _page.GoToPage(ModTogglePagePrefab);
     }
 
@@ -90,7 +87,6 @@ public class ProfileSettingsPage : MonoBehaviour
         modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.GameplayRoom).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
-        modTogglePage.SetPage(0);
         _page.GoToPage(ModTogglePagePrefab);
     }
 
@@ -102,7 +98,6 @@ public class ProfileSettingsPage : MonoBehaviour
         modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.Widget).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
-        modTogglePage.SetPage(0);
         _page.GoToPage(ModTogglePagePrefab);
     }
 
@@ -114,7 +109,6 @@ public class ProfileSettingsPage : MonoBehaviour
         modTogglePage.Entries = ModSelectorService.Instance.GetModNamesAndDisplayNames(ModSelectorService.ModType.Service).ToArray();
 
         SortModulesNames(modTogglePage.Entries);
-        modTogglePage.SetPage(0);
         _page.GoToPage(ModTogglePagePrefab);
     }
 

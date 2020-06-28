@@ -6,6 +6,7 @@ public class ModActivitySelectPage : Pagination<KeyValuePair<string, string>, UI
 { 
     public ModActivityInfoPage InfoPagePrefab = null;
 
+    public FilterButton FilterButton = null;
     public UIElement[] Options = null;
 
     public Color EnabledColor = Color.white;
@@ -27,6 +28,22 @@ public class ModActivitySelectPage : Pagination<KeyValuePair<string, string>, UI
         }
     }
 
+    private IEnumerable<KeyValuePair<string, string>> FilteredModNames
+    {
+        get
+        {
+            IEnumerable<KeyValuePair<string, string>> modNames = ModSelectorService.Instance.GetAllModNamesAndDisplayNames();
+
+            string filter = FilterButton.FilterText.ToLowerInvariant();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                modNames = modNames.Where((x) => x.Key.ToLowerInvariant().Contains(filter) || x.Value.ToLowerInvariant().Contains(filter));
+            }
+
+            return modNames.OrderBy((x) => ProfileManager.ActiveDisableSet.Contains(x.Key)).ThenBy((y) => y.Value.Replace("The ", ""));
+        }
+    }
+
     private KeyValuePair<string, string>[] _mods = null;
 
     protected override void Awake()
@@ -45,6 +62,15 @@ public class ModActivitySelectPage : Pagination<KeyValuePair<string, string>, UI
                 return true;
             };
         }
+
+        FilterButton.FilterTextChange.AddListener(FilterTextChange);
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        FilterButton.FilterTextChange.RemoveListener(FilterTextChange);
     }
 
     private void OnEnable()
@@ -57,8 +83,7 @@ public class ModActivitySelectPage : Pagination<KeyValuePair<string, string>, UI
         //Detailed information is not automatically updated all the time - do it here now
         ProfileManager.UpdateProfileSelectionDetails();
 
-        _mods = ModSelectorService.Instance.GetAllModNamesAndDisplayNames().OrderBy((x) => ProfileManager.ActiveDisableSet.Contains(x.Key)).ThenBy((y) => y.Value.Replace("The ", "")).ToArray();
-
+        _mods = FilteredModNames.ToArray();
         SetPage(0);
     }
 
@@ -86,5 +111,11 @@ public class ModActivitySelectPage : Pagination<KeyValuePair<string, string>, UI
     {
         element.Text = value.Value;
         element.BackgroundHighlight.UnselectedColor = ProfileManager.ActiveDisableSet.Contains(value.Key) ? DisabledColor : EnabledColor;
+    }
+
+    private void FilterTextChange(string filterText)
+    {
+        _mods = FilteredModNames.ToArray();
+        SetPage(0);
     }
 }

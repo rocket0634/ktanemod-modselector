@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 public class ProfileSelectPage : Pagination<Profile, UIElement>
 {
     public ProfileSettingsPage SettingsPagePrefab = null;
 
+    public FilterButton FilterButton = null;
     public UIElement[] Options = null;
 
     protected override Profile[] ValueCollection
@@ -19,6 +21,22 @@ public class ProfileSelectPage : Pagination<Profile, UIElement>
         get
         {
             return Options;
+        }
+    }
+
+    private IEnumerable<Profile> FilteredProfiles
+    {
+        get
+        {
+            IEnumerable<KeyValuePair<string, Profile>> profiles = ProfileManager.AvailableProfiles;
+
+            string filter = FilterButton.FilterText.ToLowerInvariant();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                profiles = profiles.Where((x) => x.Key.ToLowerInvariant().Contains(filter));
+            }
+
+            return profiles.OrderBy((x) => -(int)(x.Value.Operation)).ThenBy((y) => y.Key).Select((z) => z.Value);
         }
     }
 
@@ -41,12 +59,20 @@ public class ProfileSelectPage : Pagination<Profile, UIElement>
                 Page.GoToPage(SettingsPagePrefab);
             });
         }
+
+        FilterButton.FilterTextChange.AddListener(FilterTextChange);
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        FilterButton.FilterTextChange.RemoveListener(FilterTextChange);
     }
 
     private void OnEnable()
     {
-        _availableProfiles = ProfileManager.AvailableProfiles.OrderBy((x) => -(int)(x.Value.Operation)).ThenBy((y) => y.Key).Select((z) => z.Value).ToArray();
-
+        _availableProfiles = FilteredProfiles.ToArray();
         SetPage(0);
     }
 
@@ -66,5 +92,11 @@ public class ProfileSelectPage : Pagination<Profile, UIElement>
     {
         element.BackgroundHighlight.UnselectedColor = value.Operation.GetColor();
         element.Text = value.FriendlyName;
+    }
+
+    private void FilterTextChange(string filterText)
+    {
+        _availableProfiles = FilteredProfiles.ToArray();
+        SetPage(0);
     }
 }

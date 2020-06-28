@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using System.Linq;
 
 public class ModBundleSelectPage : Pagination<ModSelectorService.ModWrapper, UIElement>
 {
     public ModBundleInfoPage InfoPagePrefab = null;
 
+    public FilterButton FilterButton = null;
     public UIElement[] Options = null;
 
     protected override ModSelectorService.ModWrapper[] ValueCollection
@@ -19,6 +21,22 @@ public class ModBundleSelectPage : Pagination<ModSelectorService.ModWrapper, UIE
         get
         {
             return Options;
+        }
+    }
+
+    private IEnumerable<ModSelectorService.ModWrapper> FilteredModWrappers
+    {
+        get
+        {
+            IEnumerable<ModSelectorService.ModWrapper> modWrappers = ModSelectorService.Instance.GetModWrappers();
+
+            string filter = FilterButton.FilterText.ToLowerInvariant();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                modWrappers = modWrappers.Where((x) => x.ModTitle.ToLowerInvariant().Contains(filter));
+            }
+
+            return modWrappers;
         }
     }
 
@@ -40,6 +58,15 @@ public class ModBundleSelectPage : Pagination<ModSelectorService.ModWrapper, UIE
                 return true;
             };
         }
+
+        FilterButton.FilterTextChange.AddListener(FilterTextChange);
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        FilterButton.FilterTextChange.RemoveListener(FilterTextChange);
     }
 
     private void OnEnable()
@@ -49,9 +76,8 @@ public class ModBundleSelectPage : Pagination<ModSelectorService.ModWrapper, UIE
             return;
         }
 
-        _modWrappers = ModSelectorService.Instance.GetModWrappers().ToArray();
+        _modWrappers = FilteredModWrappers.ToArray();
         System.Array.Sort(_modWrappers, (x, y) => string.Compare(x.ModTitle.Replace("The ", ""), y.ModTitle.Replace("The ", "")));
-
         SetPage(0);
     }
 
@@ -70,5 +96,12 @@ public class ModBundleSelectPage : Pagination<ModSelectorService.ModWrapper, UIE
     protected override void SetElement(ModSelectorService.ModWrapper value, UIElement element)
     {
         element.Text = value.ModTitle;
+    }
+
+    private void FilterTextChange(string filterText)
+    {
+        _modWrappers = FilteredModWrappers.ToArray();
+        System.Array.Sort(_modWrappers, (x, y) => string.Compare(x.ModTitle.Replace("The ", ""), y.ModTitle.Replace("The ", "")));
+        SetPage(0);
     }
 }

@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 public class ModTogglePage : Pagination<KeyValuePair<string, string>, UIToggle>
 {
+    public FilterButton FilterButton = null;
+
     public Profile Profile = null;
     public ModSelectorService.ModType ModType = ModSelectorService.ModType.Unknown;
     public KeyValuePair<string, string>[] Entries = null;
@@ -11,7 +14,7 @@ public class ModTogglePage : Pagination<KeyValuePair<string, string>, UIToggle>
     {
         get
         {
-            return Entries;
+            return _mods;
         }
     }
 
@@ -23,7 +26,24 @@ public class ModTogglePage : Pagination<KeyValuePair<string, string>, UIToggle>
         }
     }
 
+    private IEnumerable<KeyValuePair<string, string>> FilteredEntryCollection
+    {
+        get
+        {
+            IEnumerable<KeyValuePair<string, string>> values = Entries;
+
+            string filter = FilterButton.FilterText.ToLowerInvariant();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                values = values.Where((x) => x.Key.ToLowerInvariant().Contains(filter) || x.Value.ToLowerInvariant().Contains(filter));
+            }
+
+            return values;
+        }
+    }
+
     private UIToggle[] _toggles = null;
+    private KeyValuePair<string, string>[] _mods = null;
 
     protected override void Awake()
     {
@@ -35,7 +55,7 @@ public class ModTogglePage : Pagination<KeyValuePair<string, string>, UIToggle>
             int localToggleIndex = toggleIndex;
             _toggles[toggleIndex].OnToggleChange += delegate (bool toggled)
             {
-                string entry = Entries[ValueOffset + localToggleIndex].Key;
+                string entry = _mods[ValueOffset + localToggleIndex].Key;
 
                 if (toggled)
                 {
@@ -47,10 +67,20 @@ public class ModTogglePage : Pagination<KeyValuePair<string, string>, UIToggle>
                 }
             };
         }
+
+        FilterButton.FilterTextChange.AddListener(FilterTextChange);
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        FilterButton.FilterTextChange.RemoveListener(FilterTextChange);
     }
 
     private void OnEnable()
     {
+        _mods = FilteredEntryCollection.ToArray();
         SetPage(0);
     }
 
@@ -94,5 +124,11 @@ public class ModTogglePage : Pagination<KeyValuePair<string, string>, UIToggle>
         }
 
         element.Text = value.Value;
+    }
+
+    private void FilterTextChange(string filterText)
+    {
+        _mods = FilteredEntryCollection.ToArray();
+        SetPage(0);
     }
 }
