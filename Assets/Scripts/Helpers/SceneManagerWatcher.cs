@@ -20,7 +20,7 @@ public static class SceneManagerWatcher
 
     static SceneManagerWatcher()
     {
-        SceneManagerType = ReflectionHelper.FindType("SceneManager");
+        SceneManagerType = ReflectionHelper.FindTypeInGame("SceneManager");
         InstanceProperty = SceneManagerType.GetProperty("Instance", BindingFlags.Static | BindingFlags.Public);
         CurrentStateProperty = SceneManagerType.GetProperty("CurrentState", BindingFlags.Instance | BindingFlags.Public);
     }

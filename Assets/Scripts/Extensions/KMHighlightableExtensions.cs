@@ -6,7 +6,7 @@ public static class KMHighlightableExtensions
 {
     static KMHighlightableExtensions()
     {
-        HighlightableType = ReflectionHelper.FindType("Highlightable");
+        HighlightableType = ReflectionHelper.FindTypeInGame("Highlightable");
         HighlightField = HighlightableType.GetField("highlight", BindingFlags.NonPublic | BindingFlags.Instance);
     }
 

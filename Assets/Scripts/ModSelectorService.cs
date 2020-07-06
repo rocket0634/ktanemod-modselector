@@ -15,21 +15,20 @@ public class ModSelectorService : MonoBehaviour
     {
         static ModWrapper()
         {
-            ModType = ReflectionHelper.FindType("Mod");
+            ModType = ReflectionHelper.FindTypeInGame("Mod");
             TitleProperty = ModType.GetProperty("Title", BindingFlags.Instance | BindingFlags.Public);
             ModObjectsProperty = ModType.GetProperty("ModObjects", BindingFlags.Instance | BindingFlags.Public);
 
             ModDirectoryField = ModType.GetField("modDirectory", BindingFlags.Instance | BindingFlags.NonPublic);
             UnityVersionField = ModType.GetField("modUnityVersion", BindingFlags.Instance | BindingFlags.NonPublic);
 
-            BombType = ReflectionHelper.FindType("ModBomb");
-            WidgetType = ReflectionHelper.FindType("ModWidget");
-            GameplayRoomType = ReflectionHelper.FindType("ModGameplayRoom");
+            BombType = ReflectionHelper.FindTypeInGame("ModBomb");
+            WidgetType = ReflectionHelper.FindTypeInGame("ModWidget");
+            GameplayRoomType = ReflectionHelper.FindTypeInGame("ModGameplayRoom");
         }
 
         public ModWrapper(object modObject)
         {
-            Debug.Log(modObject);
             ModObject = modObject;
 
             ModName = (string)TitleProperty.GetValue(ModObject, null);
@@ -431,7 +430,7 @@ public class ModSelectorService : MonoBehaviour
         MethodInfo getSolvableBombModulesMethod = _modManagerType.GetMethod("GetSolvableBombModules", BindingFlags.Instance | BindingFlags.Public);
         IList solvableBombModuleList = getSolvableBombModulesMethod.Invoke(modManager, null) as IList;
 
-        Type modBombComponentType = ReflectionHelper.FindType("ModBombComponent");
+        Type modBombComponentType = ReflectionHelper.FindTypeInGame("ModBombComponent");
         FieldInfo moduleField = modBombComponentType.GetField("module", BindingFlags.Instance | BindingFlags.NonPublic);
 
         foreach (object solvableBombModule in solvableBombModuleList)
@@ -457,7 +456,7 @@ public class ModSelectorService : MonoBehaviour
         MethodInfo getNeedyModulesMethod = _modManagerType.GetMethod("GetNeedyModules", BindingFlags.Instance | BindingFlags.Public);
         IList needyModuleList = getNeedyModulesMethod.Invoke(modManager, null) as IList;
 
-        Type modNeedyComponentType = ReflectionHelper.FindType("ModNeedyComponent");
+        Type modNeedyComponentType = ReflectionHelper.FindTypeInGame("ModNeedyComponent");
         FieldInfo moduleField = modNeedyComponentType.GetField("module", BindingFlags.Instance | BindingFlags.NonPublic);
 
         foreach (object needyModule in needyModuleList)
@@ -957,7 +956,7 @@ public class ModSelectorService : MonoBehaviour
         {
             if (_modManager == null)
             {
-                _modManagerType = ReflectionHelper.FindType("ModManager");
+                _modManagerType = ReflectionHelper.FindTypeInGame("ModManager");
                 _modManager = FindObjectOfType(_modManagerType);
             }
 

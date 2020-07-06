@@ -5,9 +5,20 @@ using System.Reflection;
 
 public static class ReflectionHelper
 {
+    public static Type FindTypeInGame(string fullName)
+    {
+        return GameAssembly.GetSafeTypes().FirstOrDefault(t =>
+        {
+            return t.FullName.Equals(fullName);
+        });
+    }
+
     public static Type FindType(string fullName)
     {
-        return AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetSafeTypes()).FirstOrDefault(t => t.FullName.Equals(fullName));
+        return AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetSafeTypes()).FirstOrDefault(t =>
+        {
+            return t.FullName.Equals(fullName);
+        });
     }
 
     private static IEnumerable<Type> GetSafeTypes(this Assembly assembly)
@@ -25,4 +36,19 @@ public static class ReflectionHelper
             return null;
         }
     }
+
+    private static Assembly GameAssembly
+    {
+        get
+        {
+            if (_gameAssembly == null)
+            {
+                _gameAssembly = FindType("KTInputManager").Assembly;
+            }
+
+            return _gameAssembly;
+        }
+    }
+
+    private static Assembly _gameAssembly = null;
 }

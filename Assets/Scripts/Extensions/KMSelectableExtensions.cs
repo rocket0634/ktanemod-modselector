@@ -10,8 +10,8 @@ public static class KMSelectableExtensions
 
     static KMSelectableExtensions()
     {
-        ModSelectableType = ReflectionHelper.FindType("ModSelectable");
-        ModHighlightableType = ReflectionHelper.FindType("ModHighlightable");
+        ModSelectableType = ReflectionHelper.FindTypeInGame("ModSelectable");
+        ModHighlightableType = ReflectionHelper.FindTypeInGame("ModHighlightable");
         CopySettingsFromProxyMethod = ModSelectableType.GetMethod("CopySettingsFromProxy", BindingFlags.Instance | BindingFlags.Public);
     }
 
