@@ -264,12 +264,12 @@ public static class ProfileManager
                 }
             }
 
-            UpdateProfileSelection();
         }
         catch (Exception ex)
         {
             Debug.LogException(ex);
         }
+        UpdateProfileSelection();
     }
 
     public static void SaveActiveConfiguration()
